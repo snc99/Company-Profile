@@ -1,0 +1,10 @@
+untuk menjalankan seed -> "node --loader ts-node/esm prisma/seed.ts"
+
+Langkah-langkah untuk Push ke GitHub
+1. git status (Periksa perubahan yang ada pada proyek/optional)
+2. git add . (menambahkan semua perubahan sekaligus)
+3. git commit -m "Pesan commit yang perubahan"
+4. git push origin main
+
+
+
