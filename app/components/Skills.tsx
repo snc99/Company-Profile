@@ -1,7 +1,7 @@
 // components/Skills.tsx
 export default function Skills() {
     return (
-      <section id="skills" className="py-16 bg-lightBlue text-white">
+      <section id="skills" className="min-h-screen flex items-center justify-center bg-blue-50 text-gray-700">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold mb-4">Our Skills</h2>
           <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
