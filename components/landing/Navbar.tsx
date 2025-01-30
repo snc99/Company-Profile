@@ -21,7 +21,14 @@ const Navbar = () => {
 
   // Scroll event untuk active section
   useEffect(() => {
-    const sections = ["hero", "about", "skills", "contact", "work-history"];
+    const sections = [
+      "hero",
+      "about",
+      "skills",
+      "project",
+      "contact",
+      "work-history",
+    ];
     const handleScroll = () => {
       sections.forEach((section) => {
         const element = document.getElementById(section);
@@ -52,22 +59,24 @@ const Navbar = () => {
 
         {/* Center - Navigation Links */}
         <div className="hidden md:flex space-x-6">
-          {["About", "Skills", "Work History", "Contact"].map((item) => {
-            const id = item.toLowerCase().replace(" ", "-");
-            return (
-              <Link
-                key={item}
-                href={`#${id}`}
-                className={`transition ${
-                  activeSection === id
-                    ? "text-blue-700 font-semibold"
-                    : "text-gray-700"
-                } hover:text-blue-700`}
-              >
-                {item}
-              </Link>
-            );
-          })}
+          {["About", "Skills", "Work History", "Project", "Contact"].map(
+            (item) => {
+              const id = item.toLowerCase().replace(" ", "-");
+              return (
+                <Link
+                  key={item}
+                  href={`#${id}`}
+                  className={`transition ${
+                    activeSection === id
+                      ? "text-blue-700 font-semibold"
+                      : "text-gray-700"
+                  } hover:text-blue-700`}
+                >
+                  {item}
+                </Link>
+              );
+            }
+          )}
         </div>
 
         {/* Right - Theme & Login */}
@@ -96,7 +105,7 @@ const Navbar = () => {
 
           {/* Login Button */}
           <Link
-            href="/login"
+            href="/auth/login"
             className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition"
           >
             Login
@@ -117,23 +126,25 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white shadow-lg">
-          {["About", "Skills", "Contact", "Work History"].map((item) => {
-            const id = item.toLowerCase().replace(" ", "-");
-            return (
-              <Link
-                key={item}
-                href={`#${id}`}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-2 ${
-                  activeSection === id
-                    ? "text-blue-700 font-semibold"
-                    : "text-gray-700"
-                } hover:bg-gray-100 transition`}
-              >
-                {item}
-              </Link>
-            );
-          })}
+          {["About", "Skills", "Work History", "project", "Contact"].map(
+            (item) => {
+              const id = item.toLowerCase().replace(" ", "-");
+              return (
+                <Link
+                  key={item}
+                  href={`#${id}`}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-4 py-2 ${
+                    activeSection === id
+                      ? "text-blue-700 font-semibold"
+                      : "text-gray-700"
+                  } hover:bg-gray-100 transition`}
+                >
+                  {item}
+                </Link>
+              );
+            }
+          )}
         </div>
       )}
     </nav>

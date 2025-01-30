@@ -14,58 +14,65 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const user = await prisma.admin.findUnique({
-          where: { email: credentials?.email },
-        });
-
-        if (!user) {
-          throw new Error("Email tidak terdaftar");
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email dan password wajib diisi");
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials!.password,
-          user.password
-        );
+        try {
+          const user = await prisma.admin.findUnique({
+            where: { email: credentials.email },
+          });
 
-        if (!isPasswordValid) {
-          throw new Error("Password salah");
+          if (!user) {
+            throw new Error("Email atau password salah");
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isPasswordValid) {
+            throw new Error("Email atau password salah");
+          }
+
+          return {
+            id: user.id,
+            name: user.nama,
+            email: user.email,
+          };
+        } finally {
+          await prisma.$disconnect(); // Pastikan Prisma menutup koneksi setelah query selesai
         }
-
-        return {
-          id: user.id,
-          name: user.nama,
-          email: user.email,
-        };
       },
     }),
   ],
   pages: {
-    signIn: "/auth/login", // Custom halaman login
+    signIn: "/auth/login",
   },
   session: {
-    strategy: "jwt", // Menggunakan JWT untuk session
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id; // Menyertakan 'id' pada token JWT
-        token.email = user.email; // Menyertakan 'email' jika perlu
+        token.id = user.id;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         session.user = {
-          id: token.id as string, // Pastikan 'id' ada di session
-          email: token.email as string, // Pastikan 'email' ada di session
+          id: token.id as string,
+          email: token.email as string,
           name: session.user?.name || "",
         };
       }
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET, // Gunakan secret untuk signing token
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
-// Ekspor handler untuk menangani request GET dan POST
 export { handler as GET, handler as POST };

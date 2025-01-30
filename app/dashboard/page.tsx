@@ -1,42 +1,34 @@
 "use client";
 
+import Loading from "@/components/custom-ui/Loading";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Import dari next/navigation untuk client-side navigation
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function Layout() {
+export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Pastikan komponen hanya dirender di klien
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
-    if (!isMounted || status === "loading") return; // Tunggu hingga komponen dirender dan status selesai
-
-    if (!session) {
-      router.push("/auth/login"); // Arahkan ke login jika tidak ada session
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
     }
-  }, [session, status, router, isMounted]);
+  }, [status, router]);
 
-  if (status === "loading" || !isMounted) {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return null; // Jangan tampilkan apa pun jika session kosong
+  if (status === "loading") {
+    return <Loading />;
   }
 
   return (
-    <section>
-      <div className="h-full mx-2 sm:mx-4 md:mx-6 lg:mx-8">
-        <h1>Welcome to the Dashboard, {session.user?.name}</h1>
-        <p>Email: {session.user?.email}</p>
-        <p>Bug : ketika login masih bisa akses /auth/login</p>
+    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        <div className="card rounded-xl bg-muted/50 bg-blue-800">
+          hello, {session?.user?.name}
+        </div>
+        <div className="aspect-video rounded-xl bg-gray-200" />
+        <div className="aspect-video rounded-xl bg-muted/50" />
       </div>
-    </section>
+      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+    </div>
   );
 }
