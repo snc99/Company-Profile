@@ -9,6 +9,7 @@ import {
   Briefcase,
   House,
   Info,
+  LayoutDashboard,
   Settings2,
   SquareTerminal,
 } from "lucide-react";
@@ -47,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: "Dashboard",
         url: "/dashboard",
-        icon: House,
+        icon: LayoutDashboard,
         isActive: true,
         items: [
           {
