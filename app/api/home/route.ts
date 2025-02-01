@@ -15,6 +15,18 @@ export async function POST(request: Request) {
     const cvFile = formData.get("cv") as File;
     const motto = formData.get("motto") as string; // Ambil motto dari form
 
+    // Pengecekan apakah data sudah ada berdasarkan motto yang sudah ada
+    const existingData = await prisma.home.findFirst({
+      where: { motto: { not: "" } }, // Mengecek apakah ada motto yang tidak kosong
+    });
+
+    if (existingData) {
+      return NextResponse.json(
+        { message: "Data sudah ada. Anda tidak bisa menambahkan motto baru." },
+        { status: 409 } // 409 Conflict - Data sudah ada
+      );
+    }
+
     if (!cvFile) {
       return NextResponse.json(
         { message: "File is required" },
