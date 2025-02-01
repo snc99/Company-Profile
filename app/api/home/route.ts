@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     // Upload ke Cloudinary
     const uploadResponse = (await new Promise<unknown>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto", folder: "uploads" },
+        { resource_type: "auto", folder: "uploads", access_mode: "public" },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);

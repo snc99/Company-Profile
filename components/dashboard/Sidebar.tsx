@@ -68,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/dashboard/home",
           },
           {
-            title: "Create Hero",
+            title: "Create Home",
             url: "/dashboard/home/create",
           },
         ],
