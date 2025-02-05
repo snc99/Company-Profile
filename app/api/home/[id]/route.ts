@@ -49,13 +49,11 @@ async function uploadToCloudinary(file: File) {
   });
 }
 
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
   try {
-    // Akses params dengan cara yang benar
-    const { id } = context.params;
+    // Mengambil ID dari URL
+    const { searchParams } = req.nextUrl;
+    const id = searchParams.get("id");
 
     if (!id) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
