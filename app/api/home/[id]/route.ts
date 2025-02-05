@@ -51,10 +51,11 @@ async function uploadToCloudinary(file: File) {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } } // Jangan langsung pakai, kita akan await
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params; // Harus di-await agar valid
+    // Akses params dengan cara yang benar
+    const { id } = context.params;
 
     if (!id) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
