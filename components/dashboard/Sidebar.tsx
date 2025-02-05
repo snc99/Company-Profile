@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   Briefcase,
@@ -27,6 +27,7 @@ import {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -49,11 +50,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Dashboard",
         url: "/dashboard",
         icon: LayoutDashboard,
-        isActive: true,
+        isActive: pathname === "/dashboard",
         items: [
           {
             title: "Dashboard",
             url: "/dashboard",
+            isActive: pathname === "/dashboard",
           },
         ],
       },
@@ -61,15 +63,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Home",
         url: "#",
         icon: House,
-        // isActive: true,
+        isActive: pathname.startsWith("/dashboard/home"),
         items: [
           {
             title: "List Home",
             url: "/dashboard/home",
+            isActive: pathname === "/dashboard/home",
           },
           {
             title: "Create Home",
             url: "/dashboard/home/create",
+            isActive: pathname === "/dashboard/home/create",
+          },
+          {
+            title: "Create Social Media", // 🔹 Submenu baru
+            url: "/dashboard/home/create-sosmed", // URL baru untuk Create Social Media
+            isActive: pathname === "/dashboard/home/create-sosmed",
           },
         ],
       },
@@ -77,15 +86,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "About",
         url: "#",
         icon: Info,
-        // isActive: true,
+        isActive: pathname.startsWith("/dashboard/about"),
         items: [
           {
             title: "List About",
             url: "/dashboard/about",
+            isActive: pathname === "/dashboard/about",
           },
           {
             title: "Create About",
             url: "/dashboard/about/create",
+            isActive: pathname === "/dashboard/about/create",
           },
         ],
       },
@@ -93,14 +104,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Skills",
         url: "#",
         icon: SquareTerminal,
+        isActive: pathname.startsWith("/dashboard/skills"),
         items: [
           {
             title: "List Skills",
             url: "/dashboard/skills",
+            isActive: pathname === "/dashboard/skills",
           },
           {
             title: "Create Skills",
             url: "/dashboard/skills/create",
+            isActive: pathname === "/dashboard/skills/create",
           },
         ],
       },
@@ -108,14 +122,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Work History",
         url: "#",
         icon: Briefcase,
+        isActive: pathname.startsWith("/dashboard/work-history"),
         items: [
           {
             title: "List Work History",
             url: "/dashboard/work-history",
+            isActive: pathname === "/dashboard/work-history",
           },
           {
             title: "Create Work History",
             url: "/dashboard/work-history/create",
+            isActive: pathname === "/dashboard/work-history/create",
           },
         ],
       },
@@ -123,14 +140,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Projects",
         url: "#",
         icon: Settings2,
+        isActive: pathname.startsWith("/dashboard/projects"),
         items: [
           {
             title: "List Projects",
             url: "/dashboard/projects",
+            isActive: pathname === "/dashboard/projects",
           },
           {
             title: "Create Project",
             url: "/dashboard/projects/create",
+            isActive: pathname === "/dashboard/projects/create",
           },
         ],
       },

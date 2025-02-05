@@ -2,30 +2,38 @@
 
 import { useState, useEffect } from "react";
 import HomeForm from "@/components/custom-ui/HomeForm";
-import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/custom-ui/Loading";
+import { showToast } from "@/components/Toast-Sweetalert2/Toast"; // Import toast yang benar
 
 export default function CreateHome() {
   const router = useRouter();
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDataExist, setIsDataExist] = useState(false); // State untuk cek data
-  const [loading, setLoading] = useState(true); // State loading
+  const [isDataExist, setIsDataExist] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [motto, setMotto] = useState("");
+  const [cvLink, setCvLink] = useState("");
+ 
 
-  // Cek apakah data sudah ada di useEffect
+  const handleEditClick = () => {
+    const queryParams = new URLSearchParams({ motto, cvLink }).toString();
+    router.push(`/dashboard/home/edit?${queryParams}`);
+  };
+
   useEffect(() => {
     const checkDataExist = async () => {
       try {
-        const response = await fetch("/api/home"); // API untuk cek data
+        const response = await fetch("/api/home");
         const data = await response.json();
         if (data && data.motto) {
           setIsDataExist(true);
+          setMotto(data.motto);
+          setCvLink(data.cvLink);
         }
       } catch (error) {
         console.error("Error checking data:", error);
       } finally {
-        setLoading(false); // Selesai loading
+        setLoading(false);
       }
     };
 
@@ -34,6 +42,28 @@ export default function CreateHome() {
 
   const handleFormSubmit = async (motto: string, cvFile?: File) => {
     setIsSubmitting(true);
+
+    // Validasi motto
+    if (motto.length < 3) {
+      showToast("error", "Motto harus memiliki minimal 3 karakter.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validasi file CV di frontend
+    if (cvFile) {
+      if (cvFile.type !== "application/pdf") {
+        showToast("error", "File harus berupa PDF");
+        setIsSubmitting(false);
+        return;
+      }
+      if (cvFile.size > 10 * 1024 * 1024) {
+        showToast("error", "File tidak boleh lebih dari 10MB");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append("motto", motto);
     if (cvFile) {
@@ -47,19 +77,26 @@ export default function CreateHome() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit data");
+        const errorData = await response.json();
+        if (errorData.errors) {
+          const errors: { [key: string]: string } = {};
+          errorData.errors.forEach(
+            (error: { message: string; field: string }) => {
+              errors[error.field] = error.message;
+            }
+          );
+        } else {
+          showToast("error", errorData.message || "Gagal mengirim data.");
+        }
+        return;
       }
 
-      toast({ title: "Success", description: "Data berhasil dikirim!" });
-
+      showToast("success", "Data berhasil dikirim!");
       router.push("/dashboard/home");
+      router.refresh();
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        title: "Error",
-        description: "Gagal mengirim data.",
-        variant: "destructive",
-      });
+      console.error("Error sending data:", error);
+      showToast("error", "Gagal mengirim data.");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +132,14 @@ export default function CreateHome() {
         >
           Kembali
         </button>
+        {isDataExist && (
+          <button
+            onClick={handleEditClick}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+          >
+            Edit
+          </button>
+        )}
       </div>
     </div>
   );

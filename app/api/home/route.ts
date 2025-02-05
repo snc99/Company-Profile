@@ -1,44 +1,73 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { prisma } from "@/lib/prisma"; // Import Prisma Client
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
-// Konfigurasi Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
+const HomeSchema = z.object({
+  motto: z
+    .string()
+    .min(3, "Motto minimal 3 karakter")
+    .max(100, "Motto maksimal 100 karakter")
+    .refine((value) => value.trim() !== "", {
+      message: "Motto wajib diisi",
+    }),
+
+  cv: z
+    .instanceof(File)
+    .refine((file) => file !== null && file !== undefined, {
+      message: "File CV wajib diisi",
+    })
+    .refine((file) => file.type === "application/pdf", {
+      message: "File harus berupa PDF",
+    })
+    .refine((file) => file.size <= 10 * 1024 * 1024, {
+      message: "File tidak boleh lebih dari 10MB",
+    }),
+});
+
 export async function POST(request: Request) {
   try {
+    // Ambil formData dari request
     const formData = await request.formData();
-    const cvFile = formData.get("cv") as File;
-    const motto = formData.get("motto") as string; // Ambil motto dari form
+    const cvFile = formData.get("cv");
 
-    // Pengecekan apakah data sudah ada berdasarkan motto yang sudah ada
-    const existingData = await prisma.home.findFirst({
-      where: { motto: { not: "" } }, // Mengecek apakah ada motto yang tidak kosong
-    });
-
-    if (existingData) {
+    // Cek apakah cvFile adalah instance dari File
+    if (!(cvFile instanceof File)) {
       return NextResponse.json(
-        { message: "Data sudah ada. Anda tidak bisa menambahkan motto baru." },
-        { status: 409 } // 409 Conflict - Data sudah ada
-      );
-    }
-
-    if (!cvFile) {
-      return NextResponse.json(
-        { message: "File is required" },
+        { message: "Input tidak berupa file yang valid." },
         { status: 400 }
       );
     }
 
-    // Konversi File ke Buffer
+    const motto = formData.get("motto") as string;
+
+    // Validasi menggunakan Zod
+    const result = HomeSchema.safeParse({ motto, cv: cvFile });
+
+    if (!result.success) {
+      // Menampilkan pesan error dari Zod jika validasi gagal
+      return NextResponse.json(
+        {
+          errors: result.error.errors.map((e) => ({
+            message: e.message,
+            field: e.path[0],
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    // Proses upload jika validasi berhasil
     const arrayBuffer = await cvFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload ke Cloudinary
+    // Upload file ke Cloudinary
     const uploadResponse = (await new Promise<unknown>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { resource_type: "auto", folder: "uploads", access_mode: "public" },
@@ -50,18 +79,27 @@ export async function POST(request: Request) {
       uploadStream.end(buffer);
     })) as { secure_url: string };
 
-    console.log("Cloudinary Upload Response:", uploadResponse);
+    // Cek apakah data sudah ada
+    const existingData = await prisma.home.findFirst({
+      where: { motto: { not: "" } },
+    });
 
-    // Simpan Data ke Database
+    if (existingData) {
+      return NextResponse.json(
+        { message: "Data sudah ada. Anda tidak bisa menambahkan data baru." },
+        { status: 409 }
+      );
+    }
+
+    // Simpan data ke database
     const newHomeData = await prisma.home.create({
       data: {
-        motto: motto || "Default Motto",
-        cvLink: uploadResponse.secure_url, // URL dari Cloudinary
+        motto: motto,
+        cvLink: uploadResponse.secure_url,
       },
     });
 
-    console.log("Data berhasil disimpan ke database:", newHomeData);
-
+    // Mengembalikan response sukses
     return NextResponse.json(newHomeData, { status: 201 });
   } catch (error) {
     console.error("Error:", error);
@@ -74,18 +112,23 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    // Ambil data dari tabel 'Home'
-    const homeData = await prisma.home.findFirst(); // Mengambil data pertama (hanya 1 data Home)
+    const homeData = await prisma.home.findFirst();
 
     if (!homeData) {
       return NextResponse.json(
-        { message: "No home data found" },
-        { status: 404 }
+        { motto: null, cvLink: null }, // Pastikan NULL, bukan string
+        { status: 200 }
       );
     }
 
-    // Mengembalikan data motto dan cvLink
-    return NextResponse.json(homeData, { status: 200 });
+    return NextResponse.json(
+      {
+        id: homeData.id, // Pastikan id disertakan di sini
+        motto: homeData.motto || null,
+        cvLink: homeData.cvLink || null,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching home data:", error);
     return NextResponse.json(
