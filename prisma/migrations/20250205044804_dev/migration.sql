@@ -14,7 +14,6 @@ CREATE TABLE "Admin" (
 CREATE TABLE "Home" (
     "id" UUID NOT NULL,
     "motto" TEXT NOT NULL,
-    "socialMedia" JSONB NOT NULL,
     "cvLink" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -53,6 +52,18 @@ CREATE TABLE "Skill" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Skill_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SocialMedia" (
+    "id" UUID NOT NULL,
+    "platform" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "photo" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SocialMedia_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
