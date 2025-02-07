@@ -96,11 +96,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest, // Gunakan `NextRequest`
+  { params }: { params: Promise<{ id: string }> } // `params` adalah Promise
 ) {
   try {
-    const { id } = params; // Tidak perlu `await`
+    const { id } = await params; // Gunakan `await` di sini
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
@@ -121,7 +121,6 @@ export async function DELETE(
     );
   }
 }
-
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> } // `params` adalah Promise
