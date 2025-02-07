@@ -96,20 +96,18 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: NextRequest, // Gunakan `NextRequest`
-  { params }: { params: Promise<{ id: string }> } // `params` adalah Promise
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> } // Sesuai Next.js 15, params adalah Promise
 ) {
   try {
-    const { id } = await params; // Gunakan `await` di sini
+    const { id } = await context.params; // Gunakan `await` untuk mengambil params
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
     const homeData = await prisma.home.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return NextResponse.json(homeData, { status: 200 });
