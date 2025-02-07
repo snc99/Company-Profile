@@ -11,15 +11,7 @@ export default function CreateHome() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDataExist, setIsDataExist] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [motto, setMotto] = useState("");
-  const [cvLink, setCvLink] = useState("");
- 
-
-  const handleEditClick = () => {
-    const queryParams = new URLSearchParams({ motto, cvLink }).toString();
-    router.push(`/dashboard/home/edit?${queryParams}`);
-  };
-
+  
   useEffect(() => {
     const checkDataExist = async () => {
       try {
@@ -27,8 +19,6 @@ export default function CreateHome() {
         const data = await response.json();
         if (data && data.motto) {
           setIsDataExist(true);
-          setMotto(data.motto);
-          setCvLink(data.cvLink);
         }
       } catch (error) {
         console.error("Error checking data:", error);
@@ -112,8 +102,7 @@ export default function CreateHome() {
 
       {isDataExist ? (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg">
-          <strong>Perhatian:</strong> Data sudah ada. Anda tidak bisa menambah
-          motto lagi.
+          <strong>Perhatian:</strong> Data sudah ada. Anda tidak bisa menambah motto lagi.
         </div>
       ) : (
         <div className="bg-white shadow-lg rounded-lg p-6">
@@ -125,21 +114,13 @@ export default function CreateHome() {
         </div>
       )}
 
-      <div className="mt-6 flex justify-between items-center">
+      <div className="mt-6 flex justify-start">
         <button
           onClick={() => router.push("/dashboard/home")}
           className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-300"
         >
           Kembali
         </button>
-        {isDataExist && (
-          <button
-            onClick={handleEditClick}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-          >
-            Edit
-          </button>
-        )}
       </div>
     </div>
   );
