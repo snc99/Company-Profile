@@ -122,14 +122,13 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
             placeholder="Masukkan platform"
-            className={`mt-1 block w-full px-3 py-2 rounded-md 
+            className={`mt-1 block w-full px-3 py-2 rounded-md transition-all duration-200
               ${
                 errors.platform
-                  ? "border-2 border-red-500"
+                  ? "border-2 border-red-500 animate-shake"
                   : "border-2 border-gray-300"
-              } 
-              focus:outline-none focus:ring-0 
-              focus:border-blue-500 border-solid`}
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
           />
           {errors.platform && (
             <p className="text-red-500 text-sm mt-1">{errors.platform}</p>
@@ -149,8 +148,8 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
             placeholder="Masukkan URL"
             className={`mt-1 block w-full px-3 py-2 rounded-md 
               ${
-                errors.platform
-                  ? "border-2 border-red-500"
+                errors.url
+                  ? "border-2 border-red-500 animate-shake"
                   : "border-2 border-gray-300"
               } 
               focus:outline-none focus:ring-0 
@@ -171,8 +170,8 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
             id="photo"
             className={`mt-1 block w-full px-3 py-2 rounded-md 
               ${
-                errors.platform
-                  ? "border-2 border-red-500"
+                errors.photo
+                  ? "border-2 border-red-500 animate-shake"
                   : "border-2 border-gray-300"
               } 
               focus:outline-none focus:ring-0 
@@ -188,7 +187,15 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button type="submit" disabled={isSubmitting || loading}>
+          <Button
+            type="submit"
+            disabled={isSubmitting || loading}
+            className={`${
+              isSubmitting || loading
+                ? "bg-gray-400 cursor-wait"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white rounded-md transition duration-300`}
+          >
             {isSubmitting || loading ? "Saving..." : "Save"}
           </Button>
           <Button
@@ -196,7 +203,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
               e.preventDefault();
               router.push("/dashboard/home");
             }}
-            className=" bg-gray-500 text-white rounded-md hover:bg-gray-700 transition duration-300"
+            className="bg-gray-500 text-white rounded-md hover:bg-gray-700 transition duration-300"
           >
             Kembali
           </Button>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/custom-ui/Loading";
 import SocialMediaTable from "@/components/custom-ui/Tabel-Sosmed";
-import { DeleteButton } from "@/components/button/DeleteButton"; // Import DeleteButton
+import { DeleteButton } from "@/components/button/DeleteButton";
 import { showToast } from "@/components/Toast-Sweetalert2/Toast";
 
 interface HomeData {
@@ -34,15 +34,12 @@ const HomePage = () => {
         const response = await fetch("/api/home");
         const data = await response.json();
 
-        console.log("Fetched home data:", data); // Log data yang diterima
-
         if (response.ok) {
           setHomeData(data);
         } else {
           setError(data.message || "Error fetching data");
         }
-      } catch (err) {
-        console.error("Error fetching home data:", err); // Log error jika fetch gagal
+      } catch {
         setError("Failed to fetch data");
       } finally {
         setLoading(false);
@@ -59,8 +56,7 @@ const HomePage = () => {
         } else {
           setError("Failed to fetch social media data");
         }
-      } catch (err) {
-        console.error("Error fetching social media data:", err); // Log error jika fetch gagal
+      } catch {
         setError("Error fetching social media data");
       }
     };
@@ -77,7 +73,6 @@ const HomePage = () => {
     }, 500);
   };
 
-  // Sweet aler toast
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`/api/home/${id}`, {
@@ -140,16 +135,13 @@ const HomePage = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 p-4">
-        {/* Motto & CV Card */}
+      <div className="grid md:grid-cols-1 gap-6 p-4 w-full">
         <Card className="border border-gray-200 rounded-lg shadow-md p-6 min-w-0 bg-white w-full">
           <CardHeader className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Motto & CV</h2>
           </CardHeader>
           <CardContent>
-            {/* Row for Motto and CV */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Motto Section */}
               <div>
                 <h3 className="text-lg font-medium">Motto</h3>
                 <p className="text-gray-700 mt-2">
@@ -157,7 +149,6 @@ const HomePage = () => {
                 </p>
               </div>
 
-              {/* CV Section */}
               <div>
                 <h3 className="text-lg font-medium">CV</h3>
                 {homeData?.cvLink ? (
@@ -175,7 +166,6 @@ const HomePage = () => {
             </div>
           </CardContent>
 
-          {/* Edit and Delete Actions */}
           {(homeData?.motto || homeData?.cvLink) && (
             <div className="flex justify-end mt-6 space-x-4">
               <Link href={`/dashboard/home/edit-motto/${homeData?.id}`}>
@@ -187,23 +177,21 @@ const HomePage = () => {
                 </Button>
               </Link>
 
-              {/* Delete Button */}
               <DeleteButton
-                onDelete={handleDelete} // Pass handleDelete ke DeleteButton
-                id={homeData.id} // Pass id ke DeleteButton
+                onDelete={handleDelete}
+                id={homeData.id}
                 loading={loading}
                 label="Delete"
               />
             </div>
           )}
         </Card>
-
-        {/* Social Media Table */}
-
-        <SocialMediaTable
-          data={socialMediaData}
-          onDelete={handleDeleteSocialMedia}
-        />
+        <div className="w-full">
+          <SocialMediaTable
+            data={socialMediaData}
+            onDelete={handleDeleteSocialMedia}
+          />
+        </div>
       </div>
     </>
   );

@@ -131,15 +131,20 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
         Create motto and CV
       </h2>
       <form onSubmit={handleSubmit}>
+        {/* Input Motto */}
         <div>
           <Label htmlFor="motto" className="block text-lg font-medium mt-2">
-            Motto
-            <span className="text-red-500 ml-1 font-bold">*</span>
+            Motto <span className="text-red-500 ml-1 font-bold">*</span>
           </Label>
           <Input
             type="text"
             id="motto"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 rounded-md transition-all duration-200 
+              ${
+                errors.motto
+                  ? "border-red-500 animate-shake"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none"
+              }`}
             value={motto}
             onChange={handleMottoChange}
             placeholder="Masukkan motto (min. 3 karakter)"
@@ -150,15 +155,19 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
           )}
         </div>
 
+        {/* Input CV */}
         <div className="mt-4">
           <Label htmlFor="cvLink" className="block text-lg font-medium mt-2">
-            CV (.pdf)
-            <span className="text-red-500 ml-1 font-bold">*</span>
+            CV (.pdf) <span className="text-red-500 ml-1 font-bold">*</span>
           </Label>
           <Input
             type="file"
             id="cvLink"
-            className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 border rounded-md transition-all duration-200 ${
+              errors.cv
+                ? " border-red-500 animate-shake"
+                : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none"
+            }`}
             accept="application/pdf"
             onChange={handleCvChange}
           />
@@ -170,6 +179,7 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
           )}
         </div>
 
+        {/* Tombol Submit & Kembali */}
         <div className="flex justify-end space-x-2 mt-4">
           <Button
             type="submit"

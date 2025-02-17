@@ -153,7 +153,13 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
             type="text"
             value={newPlatform}
             onChange={(e) => setNewPlatform(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 rounded-md transition-all duration-200
+              ${
+                errors.platform
+                  ? "border-2 border-red-500 animate-shake"
+                  : "border-2 border-gray-300"
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
           />
           {errors.platform && (
             <p className="text-sm text-red-600">{errors.platform}</p>
@@ -172,7 +178,14 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
             type="url"
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 rounded-md 
+              ${
+                errors.url
+                  ? "border-2 border-red-500 animate-shake"
+                  : "border-2 border-gray-300"
+              } 
+              focus:outline-none focus:ring-0 
+              focus:border-blue-500 border-solid`}
           />
           {errors.url && <p className="text-sm text-red-600">{errors.url}</p>}
         </div>
@@ -189,7 +202,14 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
             type="file"
             accept="image/*"
             onChange={(e) => setNewPhoto(e.target.files?.[0] || null)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 rounded-md 
+              ${
+                errors.photo
+                  ? "border-2 border-red-500 animate-shake"
+                  : "border-2 border-gray-300"
+              } 
+              focus:outline-none focus:ring-0 
+              focus:border-blue-500 border-solid`}
           />
           {errors.photo && (
             <p className="text-sm text-red-600">{errors.photo}</p>

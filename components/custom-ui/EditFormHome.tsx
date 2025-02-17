@@ -63,7 +63,7 @@ const EditFormHome = ({
       setIsSubmitting(false);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message); 
+        setError(err.errors[0].message);
       }
       setIsSubmitting(false);
     }
@@ -82,15 +82,20 @@ const EditFormHome = ({
             htmlFor="motto"
             className="block text-sm font-medium text-gray-700"
           >
-            Motto
+            Motto <span className="text-red-500 ml-1 font-bold">*</span>
           </Label>
           <Input
             id="motto"
             type="text"
             value={newMotto}
             onChange={(e) => setNewMotto(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-1 block w-full px-3 py-2 rounded-md transition-all duration-200
+    ${error ? "border-red-500 animate-shake" : "border-gray-300"}
+    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
+            placeholder="Masukkan motto (min. 3 karakter)"
+            required
           />
+
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         </div>
         <div>
