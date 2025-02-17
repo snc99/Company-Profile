@@ -9,7 +9,7 @@ import { showToast } from "@/components/Toast-Sweetalert2/Toast";
 export default function EditHomePage() {
   const router = useRouter();
   const params = useParams();
-  const id = params?.id as string; // Pastikan id bertipe string
+  const id = params?.id as string; 
   const [motto, setMotto] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,11 +17,11 @@ export default function EditHomePage() {
   useEffect(() => {
     if (!id) {
       console.error("ID tidak ditemukan");
-      router.push("/dashboard/home"); // Redirect jika ID tidak ada
+      router.push("/dashboard/home"); 
       return;
     }
 
-    console.log("Fetching data for ID:", id); // Log ID yang akan digunakan
+    console.log("Fetching data for ID:", id);
 
     const fetchData = async () => {
       try {
@@ -30,9 +30,13 @@ export default function EditHomePage() {
           throw new Error("Data tidak ditemukan");
         }
         const data = await response.json();
-        setMotto(data.motto || ""); // Pastikan tidak null
+        setMotto(data.motto || ""); 
+        if (data.cvFile) {
+          setCvFile(data.cvFile); 
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
+        showToast("error", "Gagal mengambil data!");
       } finally {
         setLoading(false);
       }
@@ -51,7 +55,7 @@ export default function EditHomePage() {
       const formData = new FormData();
       formData.append("motto", newMotto);
       if (newCvFile) {
-        formData.append("cv", newCvFile);
+        formData.append("cv", newCvFile); 
       }
 
       const response = await fetch(`/api/home/${id}`, {
@@ -60,15 +64,14 @@ export default function EditHomePage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update data");
+        throw new Error("Gagal memperbarui data");
       }
 
-      showToast("success", "Data berhasil diperbarui!"); // ✅ Tambahkan Toast di sini
-
+      showToast("success", "Data berhasil diperbarui!");
       router.push("/dashboard/home");
     } catch (error) {
       console.error("Error saving changes:", error);
-      showToast("error", "Gagal memperbarui data!"); // ✅ Tampilkan error jika gagal
+      showToast("error", "Gagal memperbarui data!");
     }
   };
 
@@ -77,14 +80,13 @@ export default function EditHomePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-3xl font-semibold text-gray-900 mb-6">Edit Home</h1>
+    <>
       <EditFormHome
         motto={motto}
         cvFile={cvFile}
-        setCvFile={setCvFile} // Pastikan prop ini ada di EditFormHome
+        setCvFile={setCvFile}
         onSubmit={handleSaveChanges}
       />
-    </div>
+    </>
   );
 }

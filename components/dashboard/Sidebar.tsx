@@ -71,9 +71,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isActive: pathname === "/dashboard/home",
           },
           {
-            title: "Create Home",
-            url: "/dashboard/home/create",
-            isActive: pathname === "/dashboard/home/create",
+            title: "Create Motto & CV",
+            url: "/dashboard/home/create-motto",
+            isActive: pathname === "/dashboard/home/create-motto",
           },
           {
             title: "Create Social Media", // 🔹 Submenu baru

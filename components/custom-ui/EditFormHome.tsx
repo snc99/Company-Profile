@@ -1,9 +1,37 @@
+"use client";
+
 import { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+
+// Skema Zod
+const HomeSchema = z.object({
+  motto: z
+    .string()
+    .min(3, "Motto minimal 3 karakter")
+    .max(1000, "Motto maksimal 1000 karakter")
+    .refine((value) => value.trim() !== "", {
+      message: "Motto wajib diisi",
+    }),
+
+  cv: z
+    .custom<File | null>((file) => {
+      if (!file) return true;
+      if (!(file instanceof File)) return false;
+      if (file.type !== "application/pdf") return false;
+      if (file.size > 5 * 1024 * 1024) return false;
+      return true;
+    }, "File harus berupa PDF dan maksimal 5MB")
+    .nullable(),
+});
 
 type EditFormProps = {
   motto: string;
-  cvFile: File | null; // Hanya menerima cvFile
-  setCvFile: React.Dispatch<React.SetStateAction<File | null>>; // Untuk memperbarui cvFile di komponen induk
+  cvFile: File | null;
+  setCvFile: React.Dispatch<React.SetStateAction<File | null>>;
   onSubmit: (newMotto: string, newCvFile: File | null) => Promise<void>;
 };
 
@@ -14,61 +42,101 @@ const EditFormHome = ({
   onSubmit,
 }: EditFormProps) => {
   const [newMotto, setNewMotto] = useState(motto);
-  const [newCvFile, setNewCvFile] = useState<File | null>(cvFile); // Gunakan prop cvFile sebagai nilai awal
+  const [newCvFile, setNewCvFile] = useState<File | null>(cvFile);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true); // Mengubah state menjadi sedang mengirim
-    await onSubmit(newMotto, newCvFile); // Kirim data ke onSubmit
-    setIsSubmitting(false); // Mengubah state menjadi selesai mengirim
+
+    setError(null);
+
+    try {
+      const validatedData = HomeSchema.parse({
+        motto: newMotto,
+        cv: newCvFile,
+      });
+
+      setIsSubmitting(true);
+      await onSubmit(validatedData.motto, validatedData.cv);
+      setIsSubmitting(false);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message); 
+      }
+      setIsSubmitting(false);
+    }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label
-          htmlFor="motto"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Motto
-        </label>
-        <input
-          id="motto"
-          type="text"
-          value={newMotto}
-          onChange={(e) => setNewMotto(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="cvFile"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Upload CV
-        </label>
-        <input
-          id="cvFile"
-          type="file"
-          accept=".pdf"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            setNewCvFile(file); // Mengupdate state lokal cvFile
-            setCvFile(file); // Mengupdate state global di komponen induk
-          }}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-        />
-      </div>
+  const isSubmitDisabled = newMotto === motto && newCvFile === cvFile;
 
-      <button
-        type="submit"
-        className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        disabled={isSubmitting} // Disable tombol saat sedang mengirim
-      >
-        {isSubmitting ? "Updating..." : "Save Changes"}
-      </button>
-    </form>
+  return (
+    <div className="max-w-full mx-auto p-6 md:p-8 bg-neutral-50 rounded-lg">
+      <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
+        Edit Motto and CV
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label
+            htmlFor="motto"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Motto
+          </Label>
+          <Input
+            id="motto"
+            type="text"
+            value={newMotto}
+            onChange={(e) => setNewMotto(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        </div>
+        <div>
+          <Label
+            htmlFor="cvFile"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Upload CV
+          </Label>
+          <Input
+            id="cvFile"
+            type="file"
+            accept=".pdf"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setNewCvFile(file);
+              setCvFile(file);
+            }}
+            className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting || isSubmitDisabled}
+            className={`${
+              isSubmitting
+                ? "bg-gray-400 opacity-50 cursor-progress"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {isSubmitting ? "Updating..." : "Save Changes"}
+          </Button>
+
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              router.push("/dashboard/home");
+            }}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700 transition duration-300"
+          >
+            Kembali
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 

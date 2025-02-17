@@ -1,140 +1,205 @@
 "use client";
 
 import { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { z } from "zod";
+import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
-const SocialMediaForm = () => {
+const SocialMediaSchema = z.object({
+  platform: z
+    .string()
+    .min(3, { message: "Platform harus memiliki minimal 3 karakter" }),
+  url: z
+    .string()
+    .url({ message: "URL tidak valid." })
+    .nonempty({ message: "URL tidak boleh kosong." }),
+  photo: z
+    .instanceof(File, { message: "Foto wajib di isi" })
+    .refine((file) => file.type.startsWith("image/"), {
+      message: "File yang diupload harus berupa gambar",
+    })
+    .refine((file) => file.size <= 2 * 1024 * 1024, {
+      message: "Ukuran foto tidak boleh lebih dari 2 MB",
+    })
+    .nullable()
+    .optional(),
+});
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
+
+// Tambahkan tipe untuk props
+type SocialMediaFormProps = {
+  onSubmit: (formData: FormData) => Promise<void>;
+  loading: boolean;
+};
+
+const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
+  onSubmit,
+  loading,
+}) => {
   const [platform, setPlatform] = useState("");
   const [url, setUrl] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<{
+    platform?: string;
+    url?: string;
+    photo?: string;
+  }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!platform || !url || !photo) {
-      setMessage("Semua kolom harus diisi!");
-      return;
-    }
-
-    setLoading(true);
-    setMessage("");
-
-    const formData = new FormData();
-    formData.append("platform", platform);
-    formData.append("url", url);
-    formData.append("photo", photo);
 
     try {
-      const res = await fetch("/api/social-media", {
-        method: "POST",
-        body: formData,
-      });
+      SocialMediaSchema.parse({ platform, url, photo });
+      setErrors({});
 
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("Data berhasil diunggah!");
-        setMessage(""); // Reset message
-        setPlatform("");
-        setUrl("");
-        setPhoto(null);
-
-        router.push("/dashboard/home");
-      } else {
-        setMessage(data.message || "Terjadi kesalahan saat mengunggah data.");
-        toast.error(data.message || "Terjadi kesalahan.");
+      if (!photo) {
+        setErrors((prev) => ({ ...prev, photo: "Foto wajib diisi" }));
+        return;
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error details:", error);
-        setMessage(
-          `Terjadi kesalahan: ${error.message || "Silakan coba lagi."}`
-        );
-        toast.error("Terjadi kesalahan. Silakan coba lagi.");
+
+      setIsSubmitting(true);
+
+      const formData = new FormData();
+      formData.append("platform", platform);
+      formData.append("url", url);
+      if (photo) {
+        formData.append("photo", photo);
+      }
+
+      await onSubmit(formData); // Panggil fungsi onSubmit yang diterima sebagai prop
+
+      Toast.fire({ icon: "success", title: "Data berhasil disimpan!" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0]] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
       } else {
-        setMessage("Terjadi kesalahan yang tidak diketahui.");
-        toast.error("Terjadi kesalahan yang tidak diketahui.");
+        Toast.fire({
+          icon: "error",
+          title: "Terjadi kesalahan, coba lagi nanti.",
+        });
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto p-8 bg-white rounded-lg shadow-xl">
-      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+    <div className="max-w-full mx-auto p-6 bg-neutral-50 rounded-lg">
+      <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
         Form Sosial Media
       </h2>
-      {message && <p className="text-center text-red-500">{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6">
-          <label
-            htmlFor="platform"
-            className="block text-sm font-medium text-gray-700"
-          >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <Label htmlFor="platform" className="flex items-center">
             Platform
-          </label>
-          <input
+            <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
             type="text"
             id="platform"
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Masukkan platform"
-            required
+            className={`mt-1 block w-full px-3 py-2 rounded-md 
+              ${
+                errors.platform
+                  ? "border-2 border-red-500"
+                  : "border-2 border-gray-300"
+              } 
+              focus:outline-none focus:ring-0 
+              focus:border-blue-500 border-solid`}
           />
+          {errors.platform && (
+            <p className="text-red-500 text-sm mt-1">{errors.platform}</p>
+          )}
         </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="url"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="url">
             URL
-          </label>
-          <input
+            <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
             type="url"
             id="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Masukkan URL"
-            required
+            className={`mt-1 block w-full px-3 py-2 rounded-md 
+              ${
+                errors.platform
+                  ? "border-2 border-red-500"
+                  : "border-2 border-gray-300"
+              } 
+              focus:outline-none focus:ring-0 
+              focus:border-blue-500 border-solid`}
           />
+          {errors.url && (
+            <p className="text-red-500 text-sm mt-1">{errors.url}</p>
+          )}
         </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="photo"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="photo">
             Foto
-          </label>
-          <input
+            <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
             type="file"
             id="photo"
+            className={`mt-1 block w-full px-3 py-2 rounded-md 
+              ${
+                errors.platform
+                  ? "border-2 border-red-500"
+                  : "border-2 border-gray-300"
+              } 
+              focus:outline-none focus:ring-0 
+              focus:border-blue-500 border-solid`}
             onChange={(e) =>
               setPhoto(e.target.files ? e.target.files[0] : null)
             }
-            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             accept="image/*"
-            required
           />
+          {errors.photo && (
+            <p className="text-red-500 text-sm mt-1">{errors.photo}</p>
+          )}
         </div>
 
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 text-white rounded-lg font-semibold ${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        <div className="flex justify-end space-x-2">
+          <Button type="submit" disabled={isSubmitting || loading}>
+            {isSubmitting || loading ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              router.push("/dashboard/home");
+            }}
+            className=" bg-gray-500 text-white rounded-md hover:bg-gray-700 transition duration-300"
           >
-            {loading ? "Mengunggah..." : "Kirim"}
-          </button>
+            Kembali
+          </Button>
         </div>
       </form>
     </div>

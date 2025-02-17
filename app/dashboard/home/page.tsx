@@ -16,6 +16,7 @@ interface HomeData {
 }
 
 interface SocialMediaItem {
+  id: string;
   platform: string;
   url: string;
   photo: string;
@@ -76,8 +77,7 @@ const HomePage = () => {
     }, 500);
   };
 
-
-// Sweet aler toast 
+  // Sweet aler toast
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(`/api/home/${id}`, {
@@ -86,13 +86,33 @@ const HomePage = () => {
 
       if (response.ok) {
         showToast("success", "Data berhasil dihapus!");
-        setHomeData(null); // Clear data setelah penghapusan
+        setHomeData(null);
       } else {
         showToast("error", "Gagal menghapus data!");
       }
     } catch (error) {
       console.error("Error deleting data:", error);
       showToast("error", "Terjadi kesalahan saat menghapus data!");
+    }
+  };
+
+  const handleDeleteSocialMedia = async (id: string) => {
+    try {
+      const response = await fetch(`/api/social-media/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        showToast("success", "Social media berhasil dihapus!");
+
+        // Perbarui state dengan menghapus item yang sudah dihapus dari list
+        setSocialMediaData((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        showToast("error", "Gagal menghapus social media!");
+      }
+    } catch (error) {
+      console.error("Error deleting social media:", error);
+      showToast("error", "Terjadi kesalahan saat menghapus social media!");
     }
   };
 
@@ -158,8 +178,7 @@ const HomePage = () => {
           {/* Edit and Delete Actions */}
           {(homeData?.motto || homeData?.cvLink) && (
             <div className="flex justify-end mt-6 space-x-4">
-              {/* Edit Button */}
-              <Link href={`/dashboard/home/edit/${homeData?.id}`}>
+              <Link href={`/dashboard/home/edit-motto/${homeData?.id}`}>
                 <Button
                   variant="outline"
                   className="py-2 text-sm text-gray-700 border-gray-300 hover:bg-gray-100"
@@ -181,7 +200,10 @@ const HomePage = () => {
 
         {/* Social Media Table */}
 
-        <SocialMediaTable data={socialMediaData} />
+        <SocialMediaTable
+          data={socialMediaData}
+          onDelete={handleDeleteSocialMedia}
+        />
       </div>
     </>
   );

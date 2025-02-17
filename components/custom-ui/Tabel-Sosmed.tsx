@@ -1,13 +1,23 @@
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Edit, Trash2 } from "lucide-react";
 
 interface SocialMediaItem {
+  id: string;
   platform: string;
   url: string;
-  photo: string; // atau bisa disesuaikan dengan struktur data foto Anda
+  photo: string;
 }
 
-const SocialMediaTable = ({ data }: { data: SocialMediaItem[] }) => {
+const SocialMediaTable = ({
+  data,
+  onDelete,
+}: {
+  data: SocialMediaItem[];
+  onDelete: (id: string) => void;
+}) => {
+  const router = useRouter();
+
   return (
     <div className="overflow-x-auto shadow-lg rounded-lg col-span-2 w-full">
       <table className="min-w-full bg-white border border-gray-200">
@@ -22,8 +32,8 @@ const SocialMediaTable = ({ data }: { data: SocialMediaItem[] }) => {
           </tr>
         </thead>
         <tbody className="text-gray-700">
-          {data.map((item, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
+          {data.map((item) => (
+            <tr key={item.id} className="border-t hover:bg-gray-50">
               <td className="px-6 py-4 text-sm">{item.platform}</td>
               <td className="px-6 py-4 text-sm">
                 <a
@@ -51,10 +61,18 @@ const SocialMediaTable = ({ data }: { data: SocialMediaItem[] }) => {
               </td>
               <td className="px-6 py-4 text-sm">
                 <div className="flex">
-                  <button className="text-blue-600 hover:text-blue-800 flex items-center mr-2">
+                  <button
+                    onClick={() =>
+                      router.push(`/dashboard/home/edit-sosmed/${item.id}`)
+                    }
+                    className="text-blue-600 hover:text-blue-800 flex items-center mr-2"
+                  >
                     <Edit className="h-5 w-5 mr-2" />
                   </button>
-                  <button className="text-red-600 hover:text-red-800 flex items-center">
+                  <button
+                    onClick={() => onDelete(item.id)}
+                    className="text-red-600 hover:text-red-800 flex items-center"
+                  >
                     <Trash2 className="h-5 w-5 mr-2" />
                   </button>
                 </div>

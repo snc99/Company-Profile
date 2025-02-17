@@ -15,3 +15,8 @@ about : deskripsi diri tambah edit delet
 project : kumpulan project tambah edit delet
 skill : tambah edit delete skill
 contact : form input tetapi tidak masuk database, langsung muncul data terkirim
+
+===========================================================================
+fitur Home 
+- Create Motto dan CV : Backend di validasi oleh zod & fronend di tangani dengan zod (DONE)
+- Edit Motto dan CV : Backend di validasi oleh zod & fronend di tangani dengan zod 
