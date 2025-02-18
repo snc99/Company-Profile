@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -13,25 +13,35 @@ const aboutSchema = z.object({
 // memperbaiki GET by ID
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-
   try {
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
     const aboutData = await prisma.about.findUnique({
       where: { id },
     });
 
     if (!aboutData) {
-      return NextResponse.json({ message: "About not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Data tidak ditemukan" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(aboutData, { status: 200 });
+    return NextResponse.json(aboutData);
   } catch (error) {
-    console.error("Error fetching about:", error);
+    console.error("Terjadi kesalahan:", error);
     return NextResponse.json(
-      { message: "Failed to fetch about data" },
+      { message: "Terjadi kesalahan server" },
       { status: 500 }
     );
   }
