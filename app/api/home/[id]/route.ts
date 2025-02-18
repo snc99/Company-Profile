@@ -58,11 +58,11 @@ async function uploadToCloudinary(file: File) {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
-    // console.log("Params:", context.params);
+
     if (!id) {
       return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
     }
@@ -76,7 +76,6 @@ export async function PUT(
     }
 
     const formData = await req.formData();
-    // console.log("Form Data:", formData);
     const motto = formData.get("motto") as string;
     const cvFile = formData.get("cv") as File | null;
 
@@ -130,11 +129,26 @@ export async function DELETE(
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
-    const homeData = await prisma.home.delete({
+    const existingData = await prisma.home.findUnique({
       where: { id },
     });
 
-    return NextResponse.json(homeData, { status: 200 });
+    if (!existingData) {
+      return NextResponse.json(
+        { message: "Data tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    // 🔥 Hapus data
+    await prisma.home.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: "Data berhasil dihapus" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error deleting data:", error);
     return NextResponse.json(
@@ -143,13 +157,12 @@ export async function DELETE(
     );
   }
 }
-
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: { id: string } } // ✅ Tidak perlu Promise
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params; // ✅ Tidak perlu await di sini
 
     if (!id) {
       return NextResponse.json(
@@ -169,11 +182,11 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(homeData);
+    return NextResponse.json(homeData, { status: 200 });
   } catch (error) {
     console.error("Terjadi kesalahan:", error);
     return NextResponse.json(
-      { message: "Terjadi kesalahan server" },
+      { message: "Terjadi kesalahan server", error: (error as Error).message },
       { status: 500 }
     );
   }
