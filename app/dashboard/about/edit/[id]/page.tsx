@@ -1,4 +1,3 @@
-// EditAboutPage.tsx
 import EditFormAbout from "@/components/custom-ui/EditFormAbout";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -8,15 +7,14 @@ export default async function EditAboutPage({
 }: {
   params: { id: string };
 }) {
-  const { id } = await params; 
+  const { id } = params;
 
   const aboutData = await prisma.about.findUnique({
     where: { id },
   });
 
-
   if (!aboutData) {
-    notFound(); 
+    notFound();
   }
 
   return (
