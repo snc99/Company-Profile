@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 export default async function EditAboutPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   const aboutData = await prisma.about.findUnique({
     where: { id },
