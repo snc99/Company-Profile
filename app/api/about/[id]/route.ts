@@ -10,27 +10,23 @@ const aboutSchema = z.object({
     .nonempty("Deskripsi tidak boleh kosong."),
 });
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = await params;
+export async function GET(req: Request, context: { params: { id: string } }) {
+  const { id } = context.params;
 
+  try {
     const aboutData = await prisma.about.findUnique({
       where: { id },
     });
 
-    return NextResponse.json(
-      aboutData
-        ? { description: aboutData.description }
-        : { description: null },
-      { status: 200 }
-    );
+    if (!aboutData) {
+      return NextResponse.json({ message: "About not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(aboutData, { status: 200 });
   } catch (error) {
-    console.error("Terjadi kesalahan:", error);
+    console.error("Error fetching about:", error);
     return NextResponse.json(
-      { error: "Gagal mengambil data About." },
+      { message: "Failed to fetch about data" },
       { status: 500 }
     );
   }
