@@ -77,8 +77,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isActive: pathname === "/dashboard/home/create-motto",
           },
           {
-            title: "Create Social Media", // 🔹 Submenu baru
-            url: "/dashboard/home/create-sosmed", // URL baru untuk Create Social Media
+            title: "Create Social Media",
+            url: "/dashboard/home/create-sosmed",
             isActive: pathname === "/dashboard/home/create-sosmed",
           },
         ],
@@ -120,20 +120,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
-        title: "Work History",
+        title: "Work Experiance",
         url: "#",
         icon: Briefcase,
-        isActive: pathname.startsWith("/dashboard/work-history"),
+        isActive: pathname.startsWith("/dashboard/work-experiance"),
         items: [
           {
-            title: "List Work History",
-            url: "/dashboard/work-history",
-            isActive: pathname === "/dashboard/work-history",
+            title: "List Work Experiance",
+            url: "/dashboard/work-experiance",
+            isActive: pathname === "/dashboard/work-experiance",
           },
           {
-            title: "Create Work History",
-            url: "/dashboard/work-history/create",
-            isActive: pathname === "/dashboard/work-history/create",
+            title: "Create Work Experiance",
+            url: "/dashboard/work-experiance/create",
+            isActive: pathname === "/dashboard/work-experiance/create",
           },
         ],
       },
@@ -141,17 +141,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Projects",
         url: "#",
         icon: Settings2,
-        isActive: pathname.startsWith("/dashboard/projects"),
+        isActive: pathname.startsWith("/dashboard/project"),
         items: [
           {
-            title: "List Projects",
-            url: "/dashboard/projects",
-            isActive: pathname === "/dashboard/projects",
+            title: "List Project",
+            url: "/dashboard/project",
+            isActive: pathname === "/dashboard/project",
           },
           {
             title: "Create Project",
-            url: "/dashboard/projects/create",
-            isActive: pathname === "/dashboard/projects/create",
+            url: "/dashboard/project/create",
+            isActive: pathname === "/dashboard/project/create",
           },
         ],
       },

@@ -1,3 +1,11 @@
+import CreateProjectForm from "@/components/custom-ui/CreateProjectForm";
+
 export default function CreateProjectPage() {
-  return <div>Create a new project</div>;
+  return (
+    <div className="w-full">
+      <div>
+        <CreateProjectForm />
+      </div>
+    </div>
+  );
 }
