@@ -76,23 +76,30 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-
-  const { description } = await req.json();
-
-  const parsedData = aboutSchema.safeParse({ description });
-
-  if (!parsedData.success) {
-    return NextResponse.json(
-      { message: parsedData.error.errors[0]?.message || "Invalid input." },
-      { status: 400 }
-    );
-  }
-
   try {
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
+    const { description } = await req.json();
+
+    const parsedData = aboutSchema.safeParse({ description });
+
+    if (!parsedData.success) {
+      return NextResponse.json(
+        { message: parsedData.error.errors[0]?.message || "Invalid input." },
+        { status: 400 }
+      );
+    }
+
     const updatedAbout = await prisma.about.update({
       where: { id },
       data: { description },
