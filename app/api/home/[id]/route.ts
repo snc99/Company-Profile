@@ -159,10 +159,10 @@ export async function DELETE(
 }
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } } // ✅ Tidak perlu Promise
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = context.params; // ✅ Tidak perlu await di sini
+    const { id } = await context.params;
 
     if (!id) {
       return NextResponse.json(
