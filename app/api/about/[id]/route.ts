@@ -116,12 +116,19 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-
   try {
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
     const deletedAbout = await prisma.about.delete({
       where: {
         id: id,
