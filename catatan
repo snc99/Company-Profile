@@ -17,6 +17,12 @@ skill : tambah edit delete skill
 contact : form input tetapi tidak masuk database, langsung muncul data terkirim
 
 ===========================================================================
-fitur Home 
+fitur Home
+
 - Create Motto dan CV : Backend di validasi oleh zod & fronend di tangani dengan zod (DONE)
-- Edit Motto dan CV : Backend di validasi oleh zod & fronend di tangani dengan zod 
+- Edit Motto dan CV : Backend di validasi oleh zod & fronend di tangani dengan zod
+
+================================================================
+next js versi 15 itu harus di promise setiap fungsinya dan setelah itu di await
+req: NextRequest,
+{ params }: { params: Promise<{ id: string }> }

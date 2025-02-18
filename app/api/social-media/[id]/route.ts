@@ -31,7 +31,7 @@ const SocialMediaSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
@@ -45,7 +45,6 @@ export async function PATCH(
     const url = formData.get("url") as string | null;
     const photoFile = formData.get("photo") as File | null;
 
-    // Validasi input menggunakan Zod (SocialMediaSchema)
     const validationResult = SocialMediaSchema.safeParse({
       platform,
       url,
@@ -63,12 +62,10 @@ export async function PATCH(
 
     const updateData: Record<string, string> = {};
 
-    // Update hanya jika ada data yang dikirimkan
     if (platform !== null && platform !== undefined)
       updateData.platform = platform;
     if (url !== null && url !== undefined) updateData.url = url;
 
-    // Handle foto upload jika ada
     if (photoFile && photoFile instanceof File) {
       const arrayBuffer = await photoFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -101,7 +98,6 @@ export async function PATCH(
       }
     }
 
-    // Jika tidak ada perubahan data
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { errors: ["Tidak ada perubahan data"] },
@@ -109,7 +105,6 @@ export async function PATCH(
       );
     }
 
-    // Melakukan update pada social media
     const updatedSocialMedia = await prisma.socialMedia.update({
       where: { id },
       data: updateData,
@@ -127,17 +122,15 @@ export async function PATCH(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Pastikan params diawait terlebih dahulu
-    const { id } = await params; // Menambahkan await di sini
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
     }
 
-    // Mendapatkan data sosial media berdasarkan ID
     const socialMediaData = await prisma.socialMedia.findUnique({
       where: { id },
     });
@@ -159,27 +152,26 @@ export async function GET(
   }
 }
 
-
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Menunggu params untuk memastikan id tersedia
-    const { id } = await context.params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ errors: ["Invalid ID"] }, { status: 400 });
     }
 
-    // Menghapus data sosial media berdasarkan id
     const deletedSocialMedia = await prisma.socialMedia.delete({
       where: { id },
     });
 
-    // Mengembalikan respons setelah data berhasil dihapus
     return NextResponse.json(
-      { message: "Social media entry deleted successfully", data: deletedSocialMedia },
+      {
+        message: "Social media entry deleted successfully",
+        data: deletedSocialMedia,
+      },
       { status: 200 }
     );
   } catch (error) {
