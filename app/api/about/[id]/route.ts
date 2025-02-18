@@ -10,8 +10,13 @@ const aboutSchema = z.object({
     .nonempty("Deskripsi tidak boleh kosong."),
 });
 
-export async function GET(req: Request, context: { params: { id: string } }) {
-  const { id } = context.params;
+// memperbaiki GET by ID
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
 
   try {
     const aboutData = await prisma.about.findUnique({
