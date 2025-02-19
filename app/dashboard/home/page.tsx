@@ -9,11 +9,10 @@ import SocialMediaTable from "@/components/custom-ui/Tabel-Sosmed";
 import { DeleteButton } from "@/components/button/DeleteButton";
 import {
   DeleteConfirmation,
-  showToast,
   ToastNotification,
 } from "@/components/Toast-Sweetalert2/Toast";
 
-interface HomeData {
+interface PersonalInfo {
   id: string;
   motto: string;
   cvLink: string;
@@ -27,7 +26,7 @@ interface SocialMediaItem {
 }
 
 const HomePage = () => {
-  const [homeData, setHomeData] = useState<HomeData | null>(null);
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
   const [socialMediaData, setSocialMediaData] = useState<SocialMediaItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,17 +40,17 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    fetchHomeData();
+    fetchPersonalInfo();
     fetchSocialMediaData();
   }, []);
 
-  const fetchHomeData = async () => {
+  const fetchPersonalInfo = async () => {
     try {
       const response = await fetch("/api/home");
       const data = await response.json();
 
       if (response.ok) {
-        setHomeData(data);
+        setPersonalInfo(data);
       } else {
         setError(data.message || "Error fetching data");
       }
@@ -79,10 +78,10 @@ const HomePage = () => {
 
   const handleDelete = async () => {
     const isConfirmed = await DeleteConfirmation();
-    if (!isConfirmed || !homeData?.id) return;
+    if (!isConfirmed || !personalInfo?.id) return;
 
     try {
-      const response = await fetch(`/api/home/${homeData.id}`, {
+      const response = await fetch(`/api/home/${personalInfo.id}`, {
         method: "DELETE",
       });
 
@@ -90,13 +89,13 @@ const HomePage = () => {
         throw new Error("Gagal menghapus data.");
       }
 
-      setHomeData(null);
+      setPersonalInfo(null);
 
       setTimeout(() => {
-        fetchHomeData();
+        fetchPersonalInfo();
       }, 500);
 
-      ToastNotification("success", "Your data has been deleted");
+      ToastNotification("success", "Your personal information has been deleted");
     } catch (error) {
       setError("Terjadi kesalahan saat menghapus data.");
       console.error("Error saat menghapus data:", error);
@@ -121,14 +120,17 @@ const HomePage = () => {
         throw new Error(`Gagal menghapus ${platformName}!`);
       }
 
-      showToast("success", ` Your ${platformName} has been deleted!`);
+      ToastNotification("success", ` Your ${platformName} has been deleted!`);
 
       setTimeout(() => {
         fetchSocialMediaData();
       }, 500);
     } catch (error) {
       console.error(`Error deleting ${platformName}:`, error);
-      showToast("error", `Terjadi kesalahan saat menghapus ${platformName}!`);
+      ToastNotification(
+        "error",
+        `Terjadi kesalahan saat menghapus ${platformName}!`
+      );
     }
   };
 
@@ -159,22 +161,22 @@ const HomePage = () => {
       <div className="grid md:grid-cols-1 gap-6 p-4 w-full">
         <Card className="border border-gray-200 rounded-lg shadow-md p-6 min-w-0 bg-white w-full">
           <CardHeader className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Motto & CV</h2>
+            <h2 className="text-2xl font-semibold">Personal Information</h2>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-medium">Motto</h3>
                 <p className="text-gray-700 mt-2">
-                  {homeData?.motto || "Motto belum tersedia"}
+                  {personalInfo?.motto || "Motto belum tersedia"}
                 </p>
               </div>
 
               <div>
                 <h3 className="text-lg font-medium">CV</h3>
-                {homeData?.cvLink ? (
+                {personalInfo?.cvLink ? (
                   <Button
-                    onClick={() => window.open(homeData.cvLink, "_blank")}
+                    onClick={() => window.open(personalInfo.cvLink, "_blank")}
                     variant="outline"
                     className="w-full mt-2 bg-blue-500 text-white hover:bg-blue-600"
                   >
@@ -187,9 +189,11 @@ const HomePage = () => {
             </div>
           </CardContent>
 
-          {(homeData?.motto || homeData?.cvLink) && (
+          {(personalInfo?.motto || personalInfo?.cvLink) && (
             <div className="flex justify-end mt-6 space-x-4">
-              <Link href={`/dashboard/home/edit-motto/${homeData?.id}`}>
+              <Link
+                href={`/dashboard/home/edit-personal-info/${personalInfo?.id}`}
+              >
                 <Button
                   variant="outline"
                   className="py-2 text-sm text-gray-700 border-gray-300 hover:bg-gray-100"
@@ -200,7 +204,7 @@ const HomePage = () => {
 
               <DeleteButton
                 onDelete={handleDelete}
-                id={homeData.id}
+                id={personalInfo.id}
                 loading={loading}
                 label="Delete"
               />

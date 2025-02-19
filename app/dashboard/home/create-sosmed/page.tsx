@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import SocialMediaForm from "@/components/custom-ui/CreateSosmedForm";
-import { showToast } from "@/components/Toast-Sweetalert2/Toast";
+import { ToastNotification } from "@/components/Toast-Sweetalert2/Toast";
 const DashboardHome = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -20,14 +20,13 @@ const DashboardHome = () => {
       const data = await res.json();
 
       if (res.ok) {
-        showToast("success", "Data berhasil diunggah!");
         router.push("/dashboard/home");
       } else {
-        showToast("error", data.message || "Terjadi kesalahan.");
+        ToastNotification("error", data.message || "Terjadi kesalahan.");
       }
     } catch (error) {
       console.error("Terjadi kesalahan:", error);
-      showToast("error", "Terjadi kesalahan. Silakan coba lagi.");
+      ToastNotification("error", "Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }

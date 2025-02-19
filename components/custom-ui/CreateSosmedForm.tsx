@@ -5,8 +5,8 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { z } from "zod";
-import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 
 const SocialMediaSchema = z.object({
   platform: z
@@ -28,19 +28,6 @@ const SocialMediaSchema = z.object({
     .optional(),
 });
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  },
-});
-
-// Tambahkan tipe untuk props
 type SocialMediaFormProps = {
   onSubmit: (formData: FormData) => Promise<void>;
   loading: boolean;
@@ -82,9 +69,9 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
         formData.append("photo", photo);
       }
 
-      await onSubmit(formData); // Panggil fungsi onSubmit yang diterima sebagai prop
+      await onSubmit(formData);
 
-      Toast.fire({ icon: "success", title: "Data berhasil disimpan!" });
+      ToastNotification("success", `${platform} added successfully`);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -95,10 +82,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
         });
         setErrors(fieldErrors);
       } else {
-        Toast.fire({
-          icon: "error",
-          title: "Terjadi kesalahan, coba lagi nanti.",
-        });
+        ToastNotification("error", "Something went wrong");
       }
     } finally {
       setIsSubmitting(false);

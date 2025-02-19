@@ -11,7 +11,6 @@ import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
-// Skema validasi Zod
 const aboutSchema = z.object({
   about: z
     .string()
@@ -26,9 +25,8 @@ const CreateAboutForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [about, setAbout] = useState(""); // Define the `about` state
+  const [about, setAbout] = useState("");
 
-  // Menggunakan react-hook-form dengan zod
   const {
     register,
     handleSubmit,
@@ -52,20 +50,16 @@ const CreateAboutForm = () => {
         throw new Error("Failed to add data.");
       }
 
-      // Show success toast using ToastNotification
-      ToastNotification(
-        "success",
-        "Data added successfully",
-        "The about page has been updated!"
-      );
+      ToastNotification("success", "Data added successfully");
 
-      setAbout(""); // Clear the input after submission
+      setAbout("");
       router.push("/dashboard/about");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred.");
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred.";
+      setError(errorMessage);
 
-      // Show error toast using ToastNotification for frontend errors
-      ToastNotification("error", "Error", error || "Something went wrong");
+      ToastNotification("error", errorMessage);
     } finally {
       setLoading(false);
     }
@@ -83,12 +77,12 @@ const CreateAboutForm = () => {
         <Textarea
           id="about"
           {...register("about")}
-          value={about} // Bind the input to the state
-          onChange={(e) => setAbout(e.target.value)} // Update state on change
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
           className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Enter your description"
           required
-          rows={10} 
+          rows={10}
         />
         {errors.about && (
           <p className="text-red-500 mt-1">{errors.about.message}</p>

@@ -7,8 +7,7 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-// Skema Zod
-const HomeSchema = z.object({
+const PersonalInfoSchema = z.object({
   motto: z
     .string()
     .min(3, "Motto minimal 3 karakter")
@@ -35,7 +34,7 @@ type EditFormProps = {
   onSubmit: (newMotto: string, newCvFile: File | null) => Promise<void>;
 };
 
-const EditFormHome = ({
+const EditFormPersonalInfo = ({
   motto,
   cvFile,
   setCvFile,
@@ -53,7 +52,7 @@ const EditFormHome = ({
     setError(null);
 
     try {
-      const validatedData = HomeSchema.parse({
+      const validatedData = PersonalInfoSchema.parse({
         motto: newMotto,
         cv: newCvFile,
       });
@@ -74,7 +73,7 @@ const EditFormHome = ({
   return (
     <div className="max-w-full mx-auto p-6 md:p-8 bg-neutral-50 rounded-lg">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-        Edit Motto and CV
+        Edit Personal Information
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -145,4 +144,4 @@ const EditFormHome = ({
   );
 };
 
-export default EditFormHome;
+export default EditFormPersonalInfo;

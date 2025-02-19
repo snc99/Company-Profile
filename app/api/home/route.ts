@@ -137,20 +137,20 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const homeData = await prisma.home.findFirst();
+    const personalInfo = await prisma.home.findFirst();
 
-    if (!homeData) {
+    if (!personalInfo) {
       return NextResponse.json(
-        { motto: null, cvLink: null }, // Pastikan NULL, bukan string
+        { motto: null, cvLink: null }, 
         { status: 200 }
       );
     }
 
     return NextResponse.json(
       {
-        id: homeData.id, // Pastikan id disertakan di sini
-        motto: homeData.motto || null,
-        cvLink: homeData.cvLink || null,
+        id: personalInfo.id,
+        motto: personalInfo.motto || null,
+        cvLink: personalInfo.cvLink || null,
       },
       { status: 200 }
     );

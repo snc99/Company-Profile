@@ -54,9 +54,8 @@ export default function EditSosmedPage() {
   if (error) return <div>{error}</div>;
   if (!socialMediaData) return <div>Data tidak ditemukan.</div>;
 
-  // Handle form submission and update data
   const handleUpdate = (updatedData: SocialMedia) => {
-    setSocialMediaData(updatedData); // Update data setelah form berhasil dikirim
+    setSocialMediaData(updatedData); 
   };
 
   return (

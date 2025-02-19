@@ -72,9 +72,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isActive: pathname === "/dashboard/home",
           },
           {
-            title: "Create Motto & CV",
-            url: "/dashboard/home/create-motto",
-            isActive: pathname === "/dashboard/home/create-motto",
+            title: "Create Personal Info",
+            url: "/dashboard/home/create-personal-info",
+            isActive: pathname === "/dashboard/home/create-personal-info",
           },
           {
             title: "Create Social Media",

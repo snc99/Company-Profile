@@ -171,18 +171,18 @@ export async function GET(
       );
     }
 
-    const homeData = await prisma.home.findUnique({
+    const personalInfo = await prisma.home.findUnique({
       where: { id },
     });
 
-    if (!homeData) {
+    if (!personalInfo) {
       return NextResponse.json(
         { message: "Data tidak ditemukan" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(homeData, { status: 200 });
+    return NextResponse.json(personalInfo, { status: 200 });
   } catch (error) {
     console.error("Terjadi kesalahan:", error);
     return NextResponse.json(

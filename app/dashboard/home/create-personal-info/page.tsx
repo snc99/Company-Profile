@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import HomeForm from "@/components/custom-ui/HomeForm";
+import CreatePersonalInfoForm from "@/components/custom-ui/CreatePersonalInfoForm";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/custom-ui/Loading";
-import { showToast } from "@/components/Toast-Sweetalert2/Toast"; // Import toast yang benar
+import { ToastNotification } from "@/components/Toast-Sweetalert2/Toast";
 import { Button } from "@/components/ui/button";
 
-export default function CreateHome() {
+export default function CreatePersonalInfo() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDataExist, setIsDataExist] = useState(false);
@@ -48,16 +48,15 @@ export default function CreateHome() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        showToast("error", errorData.message || "Gagal mengirim data.");
+        ToastNotification("error", errorData.message || "Gagal mengirim data.");
         return;
       }
 
-      showToast("success", "Data berhasil dikirim!");
       router.push("/dashboard/home");
       router.refresh();
     } catch (error) {
       console.error("Error sending data:", error);
-      showToast("error", "Gagal mengirim data.");
+      ToastNotification("error", "Gagal mengirim data.");
     } finally {
       setIsSubmitting(false);
     }
@@ -71,9 +70,9 @@ export default function CreateHome() {
     <div className="w-full">
       {!isDataExist ? (
         <div>
-          <HomeForm
+          <CreatePersonalInfoForm
             initialMotto=""
-            onSubmit={handleFormSubmit} 
+            onSubmit={handleFormSubmit}
             isSubmitting={isSubmitting}
           />
         </div>
@@ -82,7 +81,7 @@ export default function CreateHome() {
           <div className="w-fit text-center">
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg">
               <strong>Perhatian:</strong> Data sudah ada. Anda tidak bisa
-              menambah motto lagi.
+              menambah data lagi.
             </div>
             <div className="w-full flex justify-end">
               <Button

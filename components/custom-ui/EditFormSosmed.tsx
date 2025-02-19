@@ -3,8 +3,9 @@ import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 
 const SocialMediaSchema = z.object({
   platform: z
@@ -41,18 +42,6 @@ interface EditFormSosmedProps {
   }) => void;
 }
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  },
-});
-
 const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
   const [newPlatform, setNewPlatform] = useState(socialMediaData.platform);
   const [newUrl, setNewUrl] = useState(socialMediaData.url);
@@ -71,7 +60,6 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
 
   const router = useRouter();
 
-  // Fungsi untuk memeriksa apakah tombol submit harus dinonaktifkan
   const isSubmitDisabled =
     newPlatform === socialMediaData.platform &&
     newUrl === socialMediaData.url &&
@@ -106,10 +94,7 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
         photo: newPhoto,
       });
 
-      Toast.fire({
-        icon: "success",
-        title: "Sosial Media berhasil diperbarui!",
-      });
+      ToastNotification("success", `${newPlatform} updated successfully`);
 
       router.push("/dashboard/home");
     } catch (err) {
@@ -125,10 +110,7 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
           );
         setErrors(newErrors);
       } else {
-        Toast.fire({
-          icon: "error",
-          title: "Terjadi kesalahan. Silakan coba lagi.",
-        });
+        ToastNotification("error", "Something went wrong");
       }
     } finally {
       setIsSubmitting(false);

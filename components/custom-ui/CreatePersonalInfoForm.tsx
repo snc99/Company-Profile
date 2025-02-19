@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
 import { z } from "zod";
+import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 
-const HomeSchema = z.object({
+const PersonalInfoSchema = z.object({
   motto: z
     .string()
     .min(3, "Motto minimal 3 karakter")
@@ -26,30 +26,18 @@ const HomeSchema = z.object({
     }),
 });
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: "top-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer;
-    toast.onmouseleave = Swal.resumeTimer;
-  },
-});
-
-interface HomeFormProps {
+interface PersonalInfoProps {
   initialMotto: string;
   onSubmit: (motto: string, cvFile?: File) => void;
   isSubmitting: boolean;
 }
 
-const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
+const PersonalInfo: React.FC<PersonalInfoProps> = ({ initialMotto }) => {
   const [motto, setMotto] = useState(initialMotto);
   const [cvFile, setCvFile] = useState<File | undefined>(undefined);
   const [cvFileName, setCvFileName] = useState<string>("");
   const [errors, setErrors] = useState<{ motto?: string; cv?: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false); // Tambahkan state untuk isSubmitting
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleMottoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,8 +57,7 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
 
   const validateForm = () => {
     try {
-      // Memastikan motto dan cvFile valid melalui Zod
-      HomeSchema.parse({ motto, cv: cvFile });
+      PersonalInfoSchema.parse({ motto, cv: cvFile });
       setErrors({});
       return true;
     } catch (error) {
@@ -99,7 +86,7 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
     const formData = new FormData();
     formData.append("motto", motto);
     if (cvFile) {
-      formData.append("cv", cvFile); // Pastikan hanya menambahkan cvFile jika ada
+      formData.append("cv", cvFile);
     }
 
     try {
@@ -112,14 +99,11 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
         throw new Error("Gagal mengirim data");
       }
 
-      Toast.fire({ icon: "success", title: "Data berhasil dikirim!" });
+      ToastNotification("success", "Personal information created successfully");
       router.push("/dashboard/home");
     } catch (error) {
       console.error(error);
-      Toast.fire({
-        icon: "error",
-        title: "Terjadi kesalahan, coba lagi nanti.",
-      });
+      ToastNotification("error", "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -128,10 +112,9 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
   return (
     <div className="max-w-full mx-auto p-6 md:p-8 bg-neutral-50 rounded-lg">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-        Create motto and CV
+        Create Personal Information
       </h2>
       <form onSubmit={handleSubmit}>
-        {/* Input Motto */}
         <div>
           <Label htmlFor="motto" className="block text-lg font-medium mt-2">
             Motto <span className="text-red-500 ml-1 font-bold">*</span>
@@ -155,7 +138,6 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
           )}
         </div>
 
-        {/* Input CV */}
         <div className="mt-4">
           <Label htmlFor="cvLink" className="block text-lg font-medium mt-2">
             CV (.pdf) <span className="text-red-500 ml-1 font-bold">*</span>
@@ -179,7 +161,6 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
           )}
         </div>
 
-        {/* Tombol Submit & Kembali */}
         <div className="flex justify-end space-x-2 mt-4">
           <Button
             type="submit"
@@ -190,7 +171,7 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? "Saving..." : "Save"}
           </Button>
           <Button
             onClick={(e) => {
@@ -207,4 +188,4 @@ const HomeForm: React.FC<HomeFormProps> = ({ initialMotto }) => {
   );
 };
 
-export default HomeForm;
+export default PersonalInfo;

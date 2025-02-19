@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import CreateAboutForm from "@/components/custom-ui/CreateAboutForm"; 
-import { showToast } from "@/components/Toast-Sweetalert2/Toast"; 
+import CreateAboutForm from "@/components/custom-ui/CreateAboutForm";
+import { ToastNotification } from "@/components/Toast-Sweetalert2/Toast";
 import Loading from "@/components/custom-ui/Loading";
 import { Button } from "@/components/ui/button";
 
@@ -19,11 +19,11 @@ export default function CreateAboutPage() {
         const data = await response.json();
 
         if (data.description) {
-          setDataExists(true); 
+          setDataExists(true);
         }
       } catch (error) {
         console.error("Error checking data:", error);
-        showToast("error", "Gagal memuat data.");
+        ToastNotification("error", "Gagal memuat data.");
       } finally {
         setLoading(false);
       }
@@ -37,7 +37,7 @@ export default function CreateAboutPage() {
       <div>
         <Loading />
       </div>
-    ); 
+    );
   }
 
   if (dataExists) {
