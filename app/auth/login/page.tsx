@@ -1,34 +1,35 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
 import Loading from "@/components/custom-ui/Loading";
 
 export default function Login() {
-  const { status } = useSession(); // Ambil status sesi
+  const { status } = useSession();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard"); // Arahkan ke dashboard jika sudah login
+      router.replace("/dashboard");
     }
   }, [status, router]);
 
-  if (status === "loading") {
-    return <Loading />;
-  }
+  if (status === "loading") return <Loading />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setEmailError("");
+    setPasswordError("");
 
     const result = await signIn("credentials", {
       email,
@@ -39,9 +40,17 @@ export default function Login() {
     setIsLoading(false);
 
     if (result?.error) {
-      setError("Email atau password salah. Coba lagi!");
+      if (result.error.includes("Terlalu banyak percobaan")) {
+        setError(result.error);
+      } else if (result.error.toLowerCase().includes("email")) {
+        setEmailError(result.error);
+      } else if (result.error.toLowerCase().includes("password")) {
+        setPasswordError(result.error);
+      } else {
+        setError(result.error);
+      }
     } else {
-      router.push("/dashboard"); // Redirect menggunakan useRouter
+      router.replace("/dashboard");
     }
   };
 
@@ -53,7 +62,12 @@ export default function Login() {
       >
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {/* Error Rate Limit Tetap di Atas */}
+        {error && error.includes("Terlalu banyak percobaan") && (
+          <p className="text-sm text-orange-500 mb-4 text-center font-bold">
+            {error}
+          </p>
+        )}
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Email</label>
@@ -61,9 +75,18 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className={`w-full px-4 py-2 rounded-md transition-all duration-200
+              ${
+                emailError
+                  ? "border-2 border-red-500 animate-shake"
+                  : "border-2 border-gray-300"
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
             required
           />
+          {emailError && (
+            <p className="text-sm text-red-500 mt-1">{emailError}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -72,9 +95,18 @@ export default function Login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className={`w-full px-4 py-2 rounded-md transition-all duration-200
+              ${
+                passwordError
+                  ? "border-2 border-red-500 animate-shake"
+                  : "border-2 border-gray-300"
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
             required
           />
+          {passwordError && (
+            <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+          )}
         </div>
 
         <button

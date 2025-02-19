@@ -1,9 +1,24 @@
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
+
+// Setup Redis
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+// Setup Rate Limiter (misal: 5 request per 1 menit)
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "60 s"), // 5 percobaan per 60 detik
+  analytics: true,
+});
 
 const handler = NextAuth({
   providers: [
@@ -13,9 +28,20 @@ const handler = NextAuth({
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email dan password wajib diisi");
+        }
+
+        // Ambil IP untuk rate limit
+        const ip =
+          req.headers?.["x-forwarded-for"]?.toString().split(",")[0] ??
+          "unknown";
+
+        // Cek rate limit
+        const { success } = await ratelimit.limit(`login:${ip}`);
+        if (!success) {
+          throw new Error("Terlalu banyak percobaan. Coba lagi nanti.");
         }
 
         try {
@@ -24,7 +50,7 @@ const handler = NextAuth({
           });
 
           if (!user) {
-            throw new Error("Email atau password salah");
+            throw new Error("Email tidak terdaftar");
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -33,7 +59,7 @@ const handler = NextAuth({
           );
 
           if (!isPasswordValid) {
-            throw new Error("Email atau password salah");
+            throw new Error("Password salah");
           }
 
           return {
@@ -42,7 +68,7 @@ const handler = NextAuth({
             email: user.email,
           };
         } finally {
-          await prisma.$disconnect(); // Pastikan Prisma menutup koneksi setelah query selesai
+          await prisma.$disconnect();
         }
       },
     }),
