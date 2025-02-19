@@ -61,8 +61,8 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
   const router = useRouter();
 
   const isSubmitDisabled =
-    newPlatform === socialMediaData.platform &&
-    newUrl === socialMediaData.url &&
+    newPlatform.trim() === socialMediaData.platform.trim() &&
+    newUrl.trim() === socialMediaData.url.trim() &&
     newPhoto === socialMediaData.photo;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -207,7 +207,7 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {isSubmitting ? "Updating..." : "Update"}
+            {isSubmitting ? "Updating..." : "Save Changes"}
           </Button>
           <Button
             onClick={(e) => {

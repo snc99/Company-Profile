@@ -57,7 +57,7 @@ export default function AboutPage() {
           fetchAboutData();
         }, 500);
 
-        ToastNotification("success", "Your data has been deleted.");
+        ToastNotification("success", "About deleted successfully");
       } catch (error) {
         setError("Terjadi kesalahan saat menghapus data.");
         console.error("Error saat menghapus data:", error);
@@ -90,7 +90,7 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 md:px-8 py-6 bg-neutral-100 shadow rounded-lg">
+    <div className="w-full px-4 sm:px-6 md:px-8 py-6 bg-white border border-gray-200 rounded-lg">
       <h2 className="text-3xl font-semibold mb-4 text-gray-800 text-center">
         About Page
       </h2>

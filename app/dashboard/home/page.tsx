@@ -76,7 +76,7 @@ const HomePage = () => {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeletePersonalInfo = async () => {
     const isConfirmed = await DeleteConfirmation();
     if (!isConfirmed || !personalInfo?.id) return;
 
@@ -95,7 +95,10 @@ const HomePage = () => {
         fetchPersonalInfo();
       }, 500);
 
-      ToastNotification("success", "Your personal information has been deleted");
+      ToastNotification(
+        "success",
+        "Your personal information has been deleted"
+      );
     } catch (error) {
       setError("Terjadi kesalahan saat menghapus data.");
       console.error("Error saat menghapus data:", error);
@@ -203,7 +206,7 @@ const HomePage = () => {
               </Link>
 
               <DeleteButton
-                onDelete={handleDelete}
+                onDelete={handleDeletePersonalInfo}
                 id={personalInfo.id}
                 loading={loading}
                 label="Delete"

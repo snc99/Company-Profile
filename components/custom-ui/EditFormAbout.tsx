@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; // Ganti dengan Textarea
+import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 
@@ -28,10 +28,15 @@ export default function EditFormAbout({
   const [about, setAbout] = useState(initialDescription);
   const [aboutError, setAboutError] = useState<string | null>(null);
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const isSubmitDisabled =
+    about.trim() === initialDescription.trim() || loading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAboutError(null);
+    setLoading(true);
 
     const parsedData = aboutSchema.safeParse({ about });
 
@@ -41,6 +46,7 @@ export default function EditFormAbout({
         "error",
         parsedData.error.errors[0]?.message || "Deskripsi tidak valid."
       );
+      setLoading(false);
       return;
     }
 
@@ -55,14 +61,15 @@ export default function EditFormAbout({
         throw new Error("Failed to update data.");
       }
 
-      ToastNotification("success", "Deskripsi berhasil diperbarui!");
+      ToastNotification("success", "About updated");
       router.replace("/dashboard/about");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred.";
       setAboutError(errorMessage);
-
       ToastNotification("error", errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,10 +103,16 @@ export default function EditFormAbout({
         <div className="flex justify-end space-x-2">
           <Button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            disabled={isSubmitDisabled}
+            className={`px-4 py-2 rounded-md text-white ${
+              isSubmitDisabled
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Submit
+            {loading ? "Updating..." : "Save Changes"}
           </Button>
+
           <Button
             type="button"
             onClick={() => router.push("/dashboard/about")}

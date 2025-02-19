@@ -1,4 +1,3 @@
-// components/custom-ui/CreateAboutForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -50,7 +49,7 @@ const CreateAboutForm = () => {
         throw new Error("Failed to add data.");
       }
 
-      ToastNotification("success", "Data added successfully");
+      ToastNotification("success", "About added successfully");
 
       setAbout("");
       router.push("/dashboard/about");
@@ -97,7 +96,7 @@ const CreateAboutForm = () => {
           disabled={loading}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
         >
-          {loading ? "Loading..." : "Submit"}
+          {loading ? "Saving..." : "Save"}
         </Button>
         <Button
           type="button"

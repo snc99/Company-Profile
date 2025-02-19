@@ -16,7 +16,6 @@ export const DeleteConfirmation = async (): Promise<boolean> => {
   return result.isConfirmed;
 };
 
-
 export const ToastNotification = (
   icon: "success" | "error",
   // title: string,
@@ -37,22 +36,3 @@ export const ToastNotification = (
     },
   });
 };
-
-// export function showToast(
-//   icon: "success" | "error" | "warning" | "info",
-//   title: string
-// ) {
-//   Swal.fire({
-//     toast: true,
-//     position: "top-end",
-//     icon: icon,
-//     title: title,
-//     showConfirmButton: false,
-//     timer: 3000,
-//     timerProgressBar: true,
-//     didOpen: (toast) => {
-//       toast.onmouseenter = Swal.stopTimer;
-//       toast.onmouseleave = Swal.resumeTimer;
-//     },
-//   });
-// }
