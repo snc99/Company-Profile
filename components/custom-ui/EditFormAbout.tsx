@@ -39,7 +39,6 @@ export default function EditFormAbout({
       setAboutError(parsedData.error.errors[0]?.message || "Error terjadi.");
       ToastNotification(
         "error",
-        "Validasi Gagal",
         parsedData.error.errors[0]?.message || "Deskripsi tidak valid."
       );
       return;
@@ -56,21 +55,14 @@ export default function EditFormAbout({
         throw new Error("Failed to update data.");
       }
 
-      ToastNotification(
-        "success",
-        "Berhasil!",
-        "Deskripsi berhasil diperbarui!"
-      );
+      ToastNotification("success", "Deskripsi berhasil diperbarui!");
       router.replace("/dashboard/about");
     } catch (err) {
-      setAboutError(err instanceof Error ? err.message : "An error occurred.");
-      ToastNotification(
-        "error",
-        "Gagal",
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat mengupdate data."
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred.";
+      setAboutError(errorMessage);
+
+      ToastNotification("error", errorMessage);
     }
   };
 
