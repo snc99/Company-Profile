@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/custom-ui/Loading";
 import SocialMediaTable from "@/components/custom-ui/Tabel-Sosmed";
 import { DeleteButton } from "@/components/button/DeleteButton";
-import { showToast } from "@/components/Toast-Sweetalert2/Toast";
+import {
+  DeleteConfirmation,
+  showToast,
+  ToastNotification,
+} from "@/components/Toast-Sweetalert2/Toast";
 
 interface HomeData {
   id: string;
@@ -28,43 +32,6 @@ const HomePage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        const response = await fetch("/api/home");
-        const data = await response.json();
-
-        if (response.ok) {
-          setHomeData(data);
-        } else {
-          setError(data.message || "Error fetching data");
-        }
-      } catch {
-        setError("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchSocialMediaData = async () => {
-      try {
-        const response = await fetch("/api/social-media");
-        const data = await response.json();
-
-        if (response.ok) {
-          setSocialMediaData(data);
-        } else {
-          setError("Failed to fetch social media data");
-        }
-      } catch {
-        setError("Error fetching social media data");
-      }
-    };
-
-    fetchHomeData();
-    fetchSocialMediaData();
-  }, []);
-
   const handleRetry = () => {
     setError(null);
     setLoading(true);
@@ -73,41 +40,95 @@ const HomePage = () => {
     }, 500);
   };
 
-  const handleDelete = async (id: string) => {
+  useEffect(() => {
+    fetchHomeData();
+    fetchSocialMediaData();
+  }, []);
+
+  const fetchHomeData = async () => {
     try {
-      const response = await fetch(`/api/home/${id}`, {
+      const response = await fetch("/api/home");
+      const data = await response.json();
+
+      if (response.ok) {
+        setHomeData(data);
+      } else {
+        setError(data.message || "Error fetching data");
+      }
+    } catch {
+      setError("Failed to fetch data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSocialMediaData = async () => {
+    try {
+      const response = await fetch("/api/social-media");
+      const data = await response.json();
+
+      if (response.ok) {
+        setSocialMediaData(data);
+      } else {
+        setError("Failed to fetch social media data");
+      }
+    } catch {
+      setError("Error fetching social media data");
+    }
+  };
+
+  const handleDelete = async () => {
+    const isConfirmed = await DeleteConfirmation();
+    if (!isConfirmed || !homeData?.id) return;
+
+    try {
+      const response = await fetch(`/api/home/${homeData.id}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
-        showToast("success", "Data berhasil dihapus!");
-        setHomeData(null);
-      } else {
-        showToast("error", "Gagal menghapus data!");
+      if (!response.ok) {
+        throw new Error("Gagal menghapus data.");
       }
+
+      setHomeData(null);
+
+      setTimeout(() => {
+        fetchHomeData();
+      }, 500);
+
+      ToastNotification("success", "Your data has been deleted");
     } catch (error) {
-      console.error("Error deleting data:", error);
-      showToast("error", "Terjadi kesalahan saat menghapus data!");
+      setError("Terjadi kesalahan saat menghapus data.");
+      console.error("Error saat menghapus data:", error);
     }
   };
 
   const handleDeleteSocialMedia = async (id: string) => {
+    const isConfirmed = await DeleteConfirmation();
+    if (!isConfirmed) return;
+
+    const socialMediaItem = socialMediaData.find((item) => item.id === id);
+    const platformName = socialMediaItem
+      ? socialMediaItem.platform
+      : "Social media";
+
     try {
       const response = await fetch(`/api/social-media/${id}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
-        showToast("success", "Social media berhasil dihapus!");
-
-        // Perbarui state dengan menghapus item yang sudah dihapus dari list
-        setSocialMediaData((prev) => prev.filter((item) => item.id !== id));
-      } else {
-        showToast("error", "Gagal menghapus social media!");
+      if (!response.ok) {
+        throw new Error(`Gagal menghapus ${platformName}!`);
       }
+
+      showToast("success", ` Your ${platformName} has been deleted!`);
+
+      setTimeout(() => {
+        fetchSocialMediaData();
+      }, 500);
     } catch (error) {
-      console.error("Error deleting social media:", error);
-      showToast("error", "Terjadi kesalahan saat menghapus social media!");
+      console.error(`Error deleting ${platformName}:`, error);
+      showToast("error", `Terjadi kesalahan saat menghapus ${platformName}!`);
     }
   };
 

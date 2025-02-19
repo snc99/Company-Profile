@@ -19,12 +19,12 @@ export const DeleteConfirmation = async (): Promise<boolean> => {
 
 export const ToastNotification = (
   icon: "success" | "error",
-  title: string,
+  // title: string,
   text: string
 ) => {
   Swal.fire({
     icon,
-    title,
+    // title,
     text,
     toast: true,
     position: "top-end",

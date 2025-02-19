@@ -140,7 +140,6 @@ export async function DELETE(
       );
     }
 
-    // 🔥 Hapus data
     await prisma.home.delete({
       where: { id },
     });
@@ -157,6 +156,7 @@ export async function DELETE(
     );
   }
 }
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }

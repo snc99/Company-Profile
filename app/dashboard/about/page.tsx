@@ -57,7 +57,7 @@ export default function AboutPage() {
           fetchAboutData();
         }, 500);
 
-        ToastNotification("success", "Deleted!", "Your data has been deleted.");
+        ToastNotification("success", "Your data has been deleted.");
       } catch (error) {
         setError("Terjadi kesalahan saat menghapus data.");
         console.error("Error saat menghapus data:", error);
