@@ -24,11 +24,60 @@ const CreateWorkForm = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <Label htmlFor="" className="block text-lg font-medium text-gray-700">
+            Nama Perusahaan{" "}
+            <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
+            type="text"
+            id=""
+            value={work}
+            onChange={(e) => setWork(e.target.value)}
+            className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Isikan deskripsi anda"
+            required
+          />
+        </div>
+        <div>
           <Label
             htmlFor="work"
             className="block text-lg font-medium text-gray-700"
           >
-            work <span className="text-red-500 ml-1 font-bold">*</span>
+            Jabatan <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
+            type="text"
+            id="work"
+            value={work}
+            onChange={(e) => setWork(e.target.value)}
+            className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Isikan deskripsi anda"
+            required
+          />
+        </div>
+        <div>
+          <Label
+            htmlFor="work"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Masa Kerja <span className="text-red-500 ml-1 font-bold">*</span>
+          </Label>
+          <Input
+            type="text"
+            id="work"
+            value={work}
+            onChange={(e) => setWork(e.target.value)}
+            className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Isikan deskripsi anda"
+            required
+          />
+        </div>
+        <div>
+          <Label
+            htmlFor="work"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Deskripsi <span className="text-red-500 ml-1 font-bold">*</span>
           </Label>
           <Input
             type="text"

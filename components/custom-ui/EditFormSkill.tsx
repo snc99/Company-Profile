@@ -93,7 +93,7 @@ const EditFormSkill = () => {
 
       if (!res.ok) throw new Error("Gagal mengupdate skill");
 
-      ToastNotification("success", `${skill} berhasil diupdate!`);
+      ToastNotification("success", `${skill} has been successfully updated!`);
       router.replace("/dashboard/skills");
     } catch (error) {
       console.error("Error:", error);

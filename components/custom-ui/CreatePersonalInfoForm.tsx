@@ -150,7 +150,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ initialMotto }) => {
             disabled={isSubmitting}
             className={`${
               isSubmitting
-                ? "bg-gray-400 opacity-50 cursor-progress"
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >

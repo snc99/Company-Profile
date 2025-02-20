@@ -183,7 +183,7 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
             disabled={isSubmitting || isSubmitDisabled}
             className={` ${
               isSubmitting
-                ? "bg-gray-400 cursor-wait"
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >

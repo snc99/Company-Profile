@@ -66,7 +66,7 @@ const SkillTable = ({ skills: initialSkills }: { skills: Skill[] }) => {
         fetchSkills();
       });
 
-      ToastNotification("success", `${deletedSkill} berhasil dihapus!`);
+      ToastNotification("success", `${deletedSkill} deleted successfully!`);
     } catch (error) {
       console.error("Terjadi kesalahan saat menghapus skill:", error);
       ToastNotification("error", "Gagal menghapus skill");

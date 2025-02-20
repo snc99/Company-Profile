@@ -44,7 +44,7 @@ const CreateSkillForm = () => {
         throw new Error("Gagal menyimpan skill");
       }
 
-      ToastNotification("success", `${skill} berhasil ditambahkan!`);
+      ToastNotification("success", `${skill} added successfully!`);
 
       router.refresh();
       setTimeout(() => {

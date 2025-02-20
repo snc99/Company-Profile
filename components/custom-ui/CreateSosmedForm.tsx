@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 import { CreateSocialMediaSchema } from "@/lib/validation/sosmed";
 
-
 type SocialMediaFormProps = {
   onSubmit: (formData: FormData) => Promise<void>;
   loading: boolean;
@@ -160,7 +159,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
             disabled={isSubmitting || loading}
             className={`${
               isSubmitting || loading
-                ? "bg-blue-500 opacity-50 cursor-wait"
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             } text-white rounded-md transition duration-300`}
           >

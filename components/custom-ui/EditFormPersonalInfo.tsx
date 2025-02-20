@@ -42,7 +42,7 @@ const EditFormPersonalInfo = ({
       });
 
       setIsSubmitting(true);
-      await onSubmit(validatedData.motto, validatedData.cv ?? null); 
+      await onSubmit(validatedData.motto, validatedData.cv ?? null);
     } catch (err) {
       if (err instanceof z.ZodError) {
         err.errors.forEach((issue) => {
@@ -59,7 +59,8 @@ const EditFormPersonalInfo = ({
     }
   };
 
-  const isSubmitDisabled = newMotto === motto && newCvFile === cvFile;
+  const isSubmitDisabled =
+    newMotto.trim() === motto.trim() && newCvFile === cvFile;
 
   return (
     <div className="max-w-full mx-auto p-6 md:p-8 bg-neutral-50 rounded-lg">
