@@ -69,10 +69,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // ✅ Perbaiki parameter
 ) {
   try {
-    const { id } = context.params; // ✅ Tidak perlu await
+    const { id } = params; // ✅ Gunakan params langsung
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
@@ -81,7 +81,7 @@ export async function DELETE(
     // Cari data sebelum dihapus
     const existingData = await prisma.home.findUnique({
       where: { id },
-      select: { cvLink: true }, // Ambil hanya URL file jika ada
+      select: { cvLink: true },
     });
 
     if (!existingData) {
@@ -93,7 +93,7 @@ export async function DELETE(
 
     // Jika ada file di Cloudinary, hapus terlebih dahulu
     if (existingData.cvLink) {
-      await deleteFromCloudinary(existingData.cvLink); // ✅ Pakai fungsi bawaan
+      await deleteFromCloudinary(existingData.cvLink);
     }
 
     // Hapus data dari database
