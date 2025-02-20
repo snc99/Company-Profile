@@ -9,29 +9,21 @@ import { z } from "zod";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { AboutSchema } from "@/lib/validation/about";
 
-const aboutSchema = z.object({
-  about: z
-    .string()
-    .min(3, "Deskripsi harus memiliki minimal 3 karakter.")
-    .max(1000, "Deskripsi terlalu panjang, maksimal 1000 karakter.")
-    .nonempty("Deskripsi tidak boleh kosong."),
-});
-
-type AboutFormData = z.infer<typeof aboutSchema>;
+type AboutFormData = z.infer<typeof AboutSchema>;
 
 const CreateAboutForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [about, setAbout] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<AboutFormData>({
-    resolver: zodResolver(aboutSchema),
+    resolver: zodResolver(AboutSchema),
   });
 
   const onSubmit = async (data: AboutFormData) => {
@@ -42,7 +34,7 @@ const CreateAboutForm = () => {
       const response = await fetch("/api/about", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ about: data.about }),
+        body: JSON.stringify({ description: data.description }), // ✅ Sesuai dengan skema Zod
       });
 
       if (!response.ok) {
@@ -50,17 +42,16 @@ const CreateAboutForm = () => {
       }
 
       ToastNotification("success", "About added successfully");
-
-      setAbout("");
       router.push("/dashboard/about");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred.";
       setError(errorMessage);
-
       ToastNotification("error", errorMessage);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 400);
     }
   };
 
@@ -68,23 +59,21 @@ const CreateAboutForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label
-          htmlFor="about"
+          htmlFor="description"
           className="block text-lg font-medium text-gray-700"
         >
           About <span className="text-red-500 ml-1 font-bold">*</span>
         </Label>
         <Textarea
-          id="about"
-          {...register("about")}
-          value={about}
-          onChange={(e) => setAbout(e.target.value)}
+          id="description"
+          {...register("description")} // ✅ Sesuai dengan skema Zod
           className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Enter your description"
           required
           rows={10}
         />
-        {errors.about && (
-          <p className="text-red-500 mt-1">{errors.about.message}</p>
+        {errors.description && (
+          <p className="text-red-500 mt-1">{errors.description.message}</p>
         )}
       </div>
 

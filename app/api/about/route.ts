@@ -1,19 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { AboutSchema } from "@/lib/validation/about";
 
-const aboutSchema = z.object({
-  about: z
-    .string()
-    .nonempty("Deskripsi tidak boleh kosong.")
-    .min(3, "Deskripsi harus memiliki minimal 3 karakter.")
-    .max(1000, "Deskripsi terlalu panjang, maksimal 1000 karakter."),
-});
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { about } = await req.json();
-    const parsedData = aboutSchema.safeParse({ about });
+    const body = await req.json();
+    const { description } = body;
+
+    const parsedData = AboutSchema.safeParse({ description });
 
     if (!parsedData.success) {
       return NextResponse.json(
@@ -32,7 +26,7 @@ export async function POST(req: Request) {
 
     const newAbout = await prisma.about.create({
       data: {
-        description: about,
+        description: parsedData.data.description,
       },
     });
 
@@ -50,10 +44,9 @@ export async function GET() {
   try {
     const aboutData = await prisma.about.findFirst();
 
-    // Periksa apakah ada data dan kembalikan id bersama description
     return NextResponse.json(
       aboutData
-        ? { id: aboutData.id, description: aboutData.description } // Sertakan id di sini
+        ? { id: aboutData.id, description: aboutData.description }
         : { description: null },
       { status: 200 }
     );

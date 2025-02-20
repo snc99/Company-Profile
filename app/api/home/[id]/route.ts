@@ -1,27 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { z } from "zod";
-
-const HomeSchema = z.object({
-  motto: z
-    .string()
-    .min(3, "Motto minimal 3 karakter")
-    .max(1000, "Motto maksimal 1000 karakter")
-    .refine((value) => value.trim() !== "", {
-      message: "Motto wajib diisi",
-    }),
-
-  cv: z
-    .custom<File | null>((file) => {
-      if (!file) return true;
-      if (!(file instanceof File)) return false;
-      if (file.type !== "application/pdf") return false;
-      if (file.size > 5 * 1024 * 1024) return false;
-      return true;
-    }, "File harus berupa PDF dan maksimal 5MB")
-    .optional(),
-});
+import { UpdatePersonalInfoSchema } from "@/lib/validation/personalInfo";
 
 function sanitizeFileName(originalName: string) {
   const sanitized = originalName.replace(/[^a-zA-Z0-9.-]/g, "_").slice(-50);
@@ -79,7 +59,7 @@ export async function PUT(
     const motto = formData.get("motto") as string;
     const cvFile = formData.get("cv") as File | null;
 
-    const result = HomeSchema.safeParse({ motto, cv: cvFile });
+    const result = UpdatePersonalInfoSchema.safeParse({ motto, cv: cvFile });
 
     if (!result.success) {
       return NextResponse.json(
@@ -112,7 +92,7 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating home data:", error);
     return NextResponse.json(
-      { message: "Gagal mengupdate data", error: (error as Error).message },
+      { message: "Gagal ", error: (error as Error).message },
       { status: 500 }
     );
   }

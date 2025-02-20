@@ -1,32 +1,13 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
 import { LRUCache } from "lru-cache";
+import { CreatePersonalInfoSchema } from "@/lib/validation/personalInfo";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
-
-const HomeSchema = z.object({
-  motto: z
-    .string()
-    .min(3, "Motto minimal 3 karakter")
-    .max(1000, "Motto maksimal 1000 karakter")
-    .refine((value) => value.trim() !== "", {
-      message: "Motto wajib diisi",
-    }),
-
-  cv: z
-    .instanceof(File)
-    .refine((file) => file.type === "application/pdf", {
-      message: "File harus berupa PDF",
-    })
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "File maksimal 5MB",
-    }),
 });
 
 // **1. Setup Rate Limiting Cache**
@@ -64,7 +45,7 @@ export async function POST(request: Request) {
     const cvFile = formData.get("cv") as File;
 
     // **6. Validasi input dengan Zod**
-    const result = HomeSchema.safeParse({ motto, cv: cvFile });
+    const result = CreatePersonalInfoSchema.safeParse({ motto, cv: cvFile });
 
     if (!result.success) {
       return NextResponse.json(
@@ -140,10 +121,7 @@ export async function GET() {
     const personalInfo = await prisma.home.findFirst();
 
     if (!personalInfo) {
-      return NextResponse.json(
-        { motto: null, cvLink: null }, 
-        { status: 200 }
-      );
+      return NextResponse.json({ motto: null, cvLink: null }, { status: 200 });
     }
 
     return NextResponse.json(

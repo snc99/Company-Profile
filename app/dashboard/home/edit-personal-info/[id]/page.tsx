@@ -17,11 +17,9 @@ export default function EditPersonalInfoPage() {
   useEffect(() => {
     if (!id) {
       console.error("ID tidak ditemukan");
-      router.push("/dashboard/home");
+      setTimeout(() => router.push("/dashboard/home"), 1000);
       return;
     }
-
-    console.log("Fetching data for ID:", id);
 
     const fetchData = async () => {
       try {
@@ -30,10 +28,8 @@ export default function EditPersonalInfoPage() {
           throw new Error("Data tidak ditemukan");
         }
         const data = await response.json();
+
         setMotto(data.motto || "");
-        if (data.cvFile) {
-          setCvFile(data.cvFile);
-        }
       } catch (error) {
         console.error("Error fetching data:", error);
         ToastNotification("error", "Gagal mengambil data!");
@@ -56,7 +52,7 @@ export default function EditPersonalInfoPage() {
       formData.append("motto", newMotto);
       if (newCvFile) {
         formData.append("cv", newCvFile);
-      }
+      };
 
       const response = await fetch(`/api/home/${id}`, {
         method: "PUT",
@@ -80,13 +76,11 @@ export default function EditPersonalInfoPage() {
   }
 
   return (
-    <>
-      <EditFormPersonalInfo
-        motto={motto}
-        cvFile={cvFile}
-        setCvFile={setCvFile}
-        onSubmit={handleSaveChanges}
-      />
-    </>
+    <EditFormPersonalInfo
+      motto={motto}
+      cvFile={cvFile}
+      setCvFile={setCvFile}
+      onSubmit={handleSaveChanges}
+    />
   );
 }

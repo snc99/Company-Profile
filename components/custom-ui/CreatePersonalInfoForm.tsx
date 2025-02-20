@@ -4,27 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
-
-const PersonalInfoSchema = z.object({
-  motto: z
-    .string()
-    .min(3, "Motto minimal 3 karakter")
-    .max(1000, "Motto maksimal 1000 karakter")
-    .refine((value) => value.trim() !== "", {
-      message: "Motto wajib diisi",
-    }),
-
-  cv: z
-    .instanceof(File, { message: "File wajib diisi" })
-    .refine((file) => file.type === "application/pdf", {
-      message: "File harus berupa PDF",
-    })
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "File maksimal 5MB",
-    }),
-});
+import { CreatePersonalInfoSchema } from "@/lib/validation/personalInfo";
 
 interface PersonalInfoProps {
   initialMotto: string;
@@ -56,22 +37,22 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ initialMotto }) => {
   };
 
   const validateForm = () => {
-    try {
-      PersonalInfoSchema.parse({ motto, cv: cvFile });
+    const result = CreatePersonalInfoSchema.safeParse({ motto, cv: cvFile });
+
+    if (result.success) {
       setErrors({});
       return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0]] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-      return false;
     }
+
+    const fieldErrors: Record<string, string> = {};
+    result.error.errors.forEach((err) => {
+      if (err.path[0]) {
+        fieldErrors[err.path[0]] = err.message;
+      }
+    });
+
+    setErrors(fieldErrors);
+    return false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,7 +86,9 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({ initialMotto }) => {
       console.error(error);
       ToastNotification("error", "Something went wrong");
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 500);
     }
   };
 

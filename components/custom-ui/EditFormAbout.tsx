@@ -5,21 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
+// import { z } from "zod";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
+import { AboutSchema } from "@/lib/validation/about";
 
 interface EditFormAboutProps {
   initialDescription: string;
   id: string;
 }
-
-const aboutSchema = z.object({
-  about: z
-    .string()
-    .min(3, "Deskripsi harus memiliki minimal 3 karakter.")
-    .max(1000, "Deskripsi terlalu panjang, maksimal 1000 karakter.")
-    .nonempty("Deskripsi tidak boleh kosong."),
-});
 
 export default function EditFormAbout({
   initialDescription,
@@ -38,14 +31,10 @@ export default function EditFormAbout({
     setAboutError(null);
     setLoading(true);
 
-    const parsedData = aboutSchema.safeParse({ about });
+    const parsedData = AboutSchema.safeParse({ description: about });
 
     if (!parsedData.success) {
       setAboutError(parsedData.error.errors[0]?.message || "Error terjadi.");
-      ToastNotification(
-        "error",
-        parsedData.error.errors[0]?.message || "Deskripsi tidak valid."
-      );
       setLoading(false);
       return;
     }
@@ -69,7 +58,9 @@ export default function EditFormAbout({
       setAboutError(errorMessage);
       ToastNotification("error", errorMessage);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     }
   };
 

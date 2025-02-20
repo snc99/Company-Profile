@@ -1,32 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { UpdateSocialMediaSchema } from "@/lib/validation/sosmed";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
-
-const SocialMediaSchema = z.object({
-  platform: z
-    .string()
-    .min(3, { message: "Platform harus memiliki minimal 3 karakter" }),
-  url: z
-    .string()
-    .url({ message: "URL tidak valid." })
-    .nonempty({ message: "URL tidak boleh kosong." }),
-  photo: z
-    .instanceof(File, { message: "Foto wajib di isi" })
-    .refine((file) => file.type.startsWith("image/"), {
-      message: "File yang diupload harus berupa gambar",
-    })
-    .refine((file) => file.size <= 2 * 1024 * 1024, {
-      message: "Ukuran foto tidak boleh lebih dari 2 MB",
-    })
-    .nullable()
-    .optional(),
 });
 
 export async function PATCH(
@@ -45,7 +25,7 @@ export async function PATCH(
     const url = formData.get("url") as string | null;
     const photoFile = formData.get("photo") as File | null;
 
-    const validationResult = SocialMediaSchema.safeParse({
+    const validationResult = UpdateSocialMediaSchema.safeParse({
       platform,
       url,
       photo: photoFile,

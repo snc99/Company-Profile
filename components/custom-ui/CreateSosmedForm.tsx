@@ -7,26 +7,8 @@ import { Button } from "../ui/button";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
+import { CreateSocialMediaSchema } from "@/lib/validation/sosmed";
 
-const SocialMediaSchema = z.object({
-  platform: z
-    .string()
-    .min(3, { message: "Platform harus memiliki minimal 3 karakter" }),
-  url: z
-    .string()
-    .url({ message: "URL tidak valid." })
-    .nonempty({ message: "URL tidak boleh kosong." }),
-  photo: z
-    .instanceof(File, { message: "Foto wajib di isi" })
-    .refine((file) => file.type.startsWith("image/"), {
-      message: "File yang diupload harus berupa gambar",
-    })
-    .refine((file) => file.size <= 2 * 1024 * 1024, {
-      message: "Ukuran foto tidak boleh lebih dari 2 MB",
-    })
-    .nullable()
-    .optional(),
-});
 
 type SocialMediaFormProps = {
   onSubmit: (formData: FormData) => Promise<void>;
@@ -52,7 +34,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
     e.preventDefault();
 
     try {
-      SocialMediaSchema.parse({ platform, url, photo });
+      CreateSocialMediaSchema.parse({ platform, url, photo });
       setErrors({});
 
       if (!photo) {
@@ -85,7 +67,9 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
         ToastNotification("error", "Something went wrong");
       }
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 500);
     }
   };
 
@@ -176,7 +160,7 @@ const SocialMediaForm: React.FC<SocialMediaFormProps> = ({
             disabled={isSubmitting || loading}
             className={`${
               isSubmitting || loading
-                ? "bg-gray-400 cursor-wait"
+                ? "bg-blue-500 opacity-50 cursor-wait"
                 : "bg-blue-600 hover:bg-blue-700"
             } text-white rounded-md transition duration-300`}
           >

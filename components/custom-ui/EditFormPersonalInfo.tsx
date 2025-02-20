@@ -5,27 +5,8 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { UpdatePersonalInfoSchema } from "@/lib/validation/personalInfo";
 import { z } from "zod";
-
-const PersonalInfoSchema = z.object({
-  motto: z
-    .string()
-    .min(3, "Motto minimal 3 karakter")
-    .max(1000, "Motto maksimal 1000 karakter")
-    .refine((value) => value.trim() !== "", {
-      message: "Motto wajib diisi",
-    }),
-
-  cv: z
-    .custom<File | null>((file) => {
-      if (!file) return true;
-      if (!(file instanceof File)) return false;
-      if (file.type !== "application/pdf") return false;
-      if (file.size > 5 * 1024 * 1024) return false;
-      return true;
-    }, "File harus berupa PDF dan maksimal 5MB")
-    .nullable(),
-});
 
 type EditFormProps = {
   motto: string;
@@ -45,26 +26,36 @@ const EditFormPersonalInfo = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [mottoError, setMottoError] = useState<string | null>(null);
+  const [cvError, setCvError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError(null);
+    setMottoError(null);
+    setCvError(null);
 
     try {
-      const validatedData = PersonalInfoSchema.parse({
+      const validatedData = UpdatePersonalInfoSchema.parse({
         motto: newMotto,
-        cv: newCvFile,
+        cv: newCvFile || undefined,
       });
 
       setIsSubmitting(true);
-      await onSubmit(validatedData.motto, validatedData.cv);
-      setIsSubmitting(false);
+      await onSubmit(validatedData.motto, validatedData.cv ?? null); 
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        err.errors.forEach((issue) => {
+          if (issue.path.includes("motto")) setMottoError(issue.message);
+          else if (issue.path.includes("cv")) setCvError(issue.message);
+        });
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong");
       }
-      setIsSubmitting(false);
+    } finally {
+      setTimeout(() => setIsSubmitting(false), 500);
     }
   };
 
@@ -89,11 +80,14 @@ const EditFormPersonalInfo = ({
             value={newMotto}
             onChange={(e) => setNewMotto(e.target.value)}
             className={`mt-1 block w-full px-3 py-2 rounded-md transition-all duration-200
-    ${error ? "border-red-500 animate-shake" : "border-gray-300"}
+    ${mottoError ? "border-red-500 animate-shake" : "border-gray-300"}
     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
             placeholder="Masukkan motto (min. 3 karakter)"
             required
           />
+          {mottoError && (
+            <p className="mt-2 text-sm text-red-600">{mottoError}</p>
+          )}
 
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         </div>
@@ -113,8 +107,11 @@ const EditFormPersonalInfo = ({
               setNewCvFile(file);
               setCvFile(file);
             }}
-            className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className={`mt-2 block w-full px-3 py-2 border 
+    ${cvError ? "border-red-500 animate-shake" : "border-gray-300"}
+    rounded-md`}
           />
+          {cvError && <p className="mt-2 text-sm text-red-600">{cvError}</p>}
         </div>
         <div className="flex justify-end space-x-2">
           <Button
@@ -122,7 +119,7 @@ const EditFormPersonalInfo = ({
             disabled={isSubmitting || isSubmitDisabled}
             className={`${
               isSubmitting
-                ? "bg-gray-400 opacity-50 cursor-progress"
+                ? "bg-blue-500 opacity-50 cursor-progress"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >

@@ -10,11 +10,38 @@ Langkah-langkah untuk Push ke GitHub
 =====================================================================
 
 fitur
-home : isisnya moto, tambah edit delete sosmed dan cv
-about : deskripsi diri tambah edit delet
-project : kumpulan project tambah edit delet
-skill : tambah edit delete skill
-contact : form input tetapi tidak masuk database, langsung muncul data terkirim
+untuk home ✅
+inputan
+
+1. motto & cv
+2. sosmed
+
+untuk about ✅
+inputan
+
+1. deskripsi aja
+
+untuk skill
+inputan
+
+1. judul
+2. foto
+
+untuk Work Experience
+inputan
+
+1. nama perusahaan
+2. role
+3. deskripsi
+4. masa kerja
+
+untuk project
+inputan
+
+1. judul
+2. deskripsi
+3. foto
+4. framework yg di pake
 
 ===========================================================================
 fitur Home

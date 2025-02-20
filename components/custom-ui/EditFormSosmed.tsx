@@ -3,29 +3,9 @@ import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-// import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { ToastNotification } from "../Toast-Sweetalert2/Toast";
-
-const SocialMediaSchema = z.object({
-  platform: z
-    .string()
-    .min(3, { message: "Platform harus memiliki minimal 3 karakter" }),
-  url: z
-    .string()
-    .url({ message: "URL tidak valid." })
-    .nonempty({ message: "URL tidak boleh kosong." }),
-  photo: z
-    .instanceof(File, { message: "Foto wajib di isi" })
-    .refine((file) => file.type.startsWith("image/"), {
-      message: "File yang diupload harus berupa gambar",
-    })
-    .refine((file) => file.size <= 2 * 1024 * 1024, {
-      message: "Ukuran foto tidak boleh lebih dari 2 MB",
-    })
-    .nullable()
-    .optional(),
-});
+import { UpdateSocialMediaSchema } from "@/lib/validation/sosmed";
 
 interface EditFormSosmedProps {
   socialMediaData: {
@@ -70,7 +50,7 @@ const EditFormSosmed = ({ socialMediaData, onUpdate }: EditFormSosmedProps) => {
     setErrors({ platform: null, url: null, photo: null });
 
     try {
-      const validatedData = SocialMediaSchema.parse({
+      const validatedData = UpdateSocialMediaSchema.parse({
         platform: newPlatform,
         url: newUrl,
         photo: newPhoto,
