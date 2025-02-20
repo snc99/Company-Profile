@@ -18,7 +18,7 @@ type EditFormProps = {
 const EditFormPersonalInfo = ({
   motto,
   cvFile,
-  setCvFile,
+  // setCvFile,
   onSubmit,
 }: EditFormProps) => {
   const [newMotto, setNewMotto] = useState(motto);
@@ -60,7 +60,7 @@ const EditFormPersonalInfo = ({
   };
 
   const isSubmitDisabled =
-    newMotto.trim() === motto.trim() && newCvFile === cvFile;
+    newMotto.trim() === motto.trim() && newCvFile?.name === cvFile?.name;
 
   return (
     <div className="max-w-full mx-auto p-6 md:p-8 bg-neutral-50 rounded-lg">
@@ -105,13 +105,13 @@ const EditFormPersonalInfo = ({
             accept=".pdf"
             onChange={(e) => {
               const file = e.target.files?.[0] || null;
-              setNewCvFile(file);
-              setCvFile(file);
+              setNewCvFile(file); // Jangan ubah cvFile, cukup newCvFile saja
             }}
             className={`mt-2 block w-full px-3 py-2 border 
     ${cvError ? "border-red-500 animate-shake" : "border-gray-300"}
     rounded-md`}
           />
+
           {cvError && <p className="mt-2 text-sm text-red-600">{cvError}</p>}
         </div>
         <div className="flex justify-end space-x-2">

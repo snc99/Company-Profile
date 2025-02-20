@@ -1,13 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
 import { CreateSkillSchema } from "@/lib/validation/skillSchema";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,48 +24,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let uploadResponse;
+    // Upload foto ke Cloudinary
+    let uploadedUrl;
     try {
-      const arrayBuffer = await photoFile.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      uploadResponse = await new Promise<{ secure_url: string }>(
-        (resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { resource_type: "image", folder: "skills", access_mode: "public" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result as { secure_url: string });
-            }
-          );
-          uploadStream.end(buffer);
-        }
-      );
-
-      if (!uploadResponse?.secure_url) {
-        return NextResponse.json(
-          { error: "Upload failed, secure_url not found" },
-          { status: 500 }
-        );
-      }
+      uploadedUrl = await uploadToCloudinary(photoFile, "skills");
     } catch (uploadError) {
-      console.error("❌ Cloudinary Upload Error:", uploadError);
+      console.error("Cloudinary Upload Error:", uploadError);
       return NextResponse.json(
         { error: "Failed to upload photo" },
         { status: 500 }
       );
     }
 
+    // Simpan data ke database
     const newSkill = await prisma.skill.create({
       data: {
         name,
-        photo: uploadResponse.secure_url,
+        photo: uploadedUrl,
       },
     });
 
     return NextResponse.json(newSkill, { status: 201 });
   } catch (error) {
-    console.error("❌ Internal Server Error:", error);
+    console.error("Internal Server Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

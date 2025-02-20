@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { LRUCache } from "lru-cache";
 import { CreatePersonalInfoSchema } from "@/lib/validation/personalInfo";
-import { uploadToCloudinary } from "@/lib/cloudinary"; // ✅ Gunakan fungsi upload
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 // **1. Setup Rate Limiting Cache**
 const rateLimitCache = new LRUCache<string, number>({
