@@ -72,9 +72,9 @@ export async function POST(request: Request) {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           resource_type: "auto",
-          folder: "uploads",
-          access_mode: "public",
+          folder: "cv_files",
           public_id: sanitizedFileName,
+          access_mode: "public",
         },
         (error, result) => {
           if (error) reject(error);

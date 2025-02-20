@@ -109,8 +109,10 @@ export async function DELETE(
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
+    // Cari data sebelum dihapus
     const existingData = await prisma.home.findUnique({
       where: { id },
+      select: { cvLink: true }, // Ambil hanya URL file jika ada
     });
 
     if (!existingData) {
@@ -120,6 +122,17 @@ export async function DELETE(
       );
     }
 
+    // Jika ada file di Cloudinary, hapus terlebih dahulu
+    if (existingData.cvLink) {
+      const matches = existingData.cvLink.match(/cv_files\/([^/]+)\.pdf/);
+      const publicId = matches ? matches[1] : null;
+
+      if (publicId) {
+        await cloudinary.uploader.destroy(`cv_files/${publicId}`);
+      }
+    }
+
+    // Hapus data dari database
     await prisma.home.delete({
       where: { id },
     });

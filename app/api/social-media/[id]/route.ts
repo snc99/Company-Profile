@@ -143,6 +143,28 @@ export async function DELETE(
       return NextResponse.json({ errors: ["Invalid ID"] }, { status: 400 });
     }
 
+    const existingData = await prisma.socialMedia.findUnique({
+      where: { id },
+      select: { photo: true },
+    });
+
+    if (!existingData) {
+      return NextResponse.json(
+        { errors: ["Data tidak ditemukan"] },
+        { status: 404 }
+      );
+    }
+
+    if (existingData.photo) {
+      const urlParts = existingData.photo.split("/");
+      const filenameWithExtension = urlParts[urlParts.length - 1];
+      const publicId = filenameWithExtension.split(".")[0];
+
+      if (publicId) {
+        await cloudinary.uploader.destroy(`social-media-photos/${publicId}`);
+      }
+    }
+
     const deletedSocialMedia = await prisma.socialMedia.delete({
       where: { id },
     });
@@ -155,7 +177,6 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting social media data:", error);
     return NextResponse.json(
       { errors: ["Gagal menghapus data", (error as Error).message] },
       { status: 500 }
