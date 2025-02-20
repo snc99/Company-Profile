@@ -1,40 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { UpdatePersonalInfoSchema } from "@/lib/validation/personalInfo";
-
-function sanitizeFileName(originalName: string) {
-  const sanitized = originalName.replace(/[^a-zA-Z0-9.-]/g, "_").slice(-50);
-  const extension = ".pdf";
-
-  if (sanitized.toLowerCase().endsWith(extension)) {
-    return sanitized;
-  }
-
-  return sanitized + extension;
-}
-
-async function uploadToCloudinary(file: File) {
-  const sanitizedFileName = sanitizeFileName(file.name);
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: "auto",
-        folder: "cv_files",
-        public_id: sanitizedFileName,
-        access_mode: "public",
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result?.secure_url);
-      }
-    );
-    uploadStream.end(buffer);
-  });
-}
+import { deleteFromCloudinary, updateCloudinaryFile } from "@/lib/cloudinary";
 
 export async function PUT(
   req: NextRequest,
@@ -42,7 +9,6 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-
     if (!id) {
       return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
     }
@@ -60,7 +26,6 @@ export async function PUT(
     const cvFile = formData.get("cv") as File | null;
 
     const result = UpdatePersonalInfoSchema.safeParse({ motto, cv: cvFile });
-
     if (!result.success) {
       return NextResponse.json(
         { message: result.error.errors.map((e) => e.message).join(", ") },
@@ -68,23 +33,27 @@ export async function PUT(
       );
     }
 
-    if (existingData.motto.trim() === motto.trim()) {
+    if (existingData.motto.trim() === motto.trim() && !cvFile) {
       return NextResponse.json(
-        { message: "Motto tidak berubah" },
+        { message: "Tidak ada perubahan" },
         { status: 200 }
       );
     }
 
-    let cvUrl: string | undefined;
+    let cvUrl = existingData.cvLink;
     if (cvFile) {
-      cvUrl = (await uploadToCloudinary(cvFile)) as string;
+      cvUrl = await updateCloudinaryFile(
+        existingData.cvLink ?? "",
+        cvFile,
+        "cv_files"
+      ); // ✅ Perbaikan di sini
     }
 
     const updatedHome = await prisma.home.update({
       where: { id },
       data: {
         motto,
-        cvLink: cvUrl || existingData.cvLink,
+        cvLink: cvUrl,
       },
     });
 
@@ -92,7 +61,7 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating home data:", error);
     return NextResponse.json(
-      { message: "Gagal ", error: (error as Error).message },
+      { message: "Gagal memperbarui data", error: (error as Error).message },
       { status: 500 }
     );
   }
@@ -100,10 +69,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params; // ✅ Tidak perlu await
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
@@ -124,12 +93,7 @@ export async function DELETE(
 
     // Jika ada file di Cloudinary, hapus terlebih dahulu
     if (existingData.cvLink) {
-      const matches = existingData.cvLink.match(/cv_files\/([^/]+)\.pdf/);
-      const publicId = matches ? matches[1] : null;
-
-      if (publicId) {
-        await cloudinary.uploader.destroy(`cv_files/${publicId}`);
-      }
+      await deleteFromCloudinary(existingData.cvLink); // ✅ Pakai fungsi bawaan
     }
 
     // Hapus data dari database
