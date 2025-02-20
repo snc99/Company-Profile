@@ -69,10 +69,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } } // ✅ Perbaiki parameter
+  context: { params: Promise<{ id: string }> } // ✅ params dibuat sebagai Promise
 ) {
   try {
-    const { id } = params; // ✅ Gunakan params langsung
+    const { id } = await context.params; // ✅ Tunggu Promise params selesai
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
