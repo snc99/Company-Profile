@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
 import { CreateSocialMediaSchema } from "@/lib/validation/sosmed";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   try {
@@ -29,29 +23,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const arrayBuffer = await (photoFile as File).arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // Upload ke Cloudinary
+    const uploadedUrl = await uploadToCloudinary(photoFile as File, "social-media-photos");
 
-    const uploadResponse = (await new Promise<unknown>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: "image",
-          folder: "social-media-photos",
-          access_mode: "public",
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      uploadStream.end(buffer);
-    })) as { secure_url: string };
-
+    // Simpan data ke database
     const newSocialMedia = await prisma.socialMedia.create({
       data: {
         platform: platform as string,
         url: url as string,
-        photo: uploadResponse.secure_url,
+        photo: uploadedUrl,
       },
     });
 
@@ -64,6 +44,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
 
 export async function GET() {
   try {

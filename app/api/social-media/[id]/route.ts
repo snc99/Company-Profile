@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
 import { UpdateSocialMediaSchema } from "@/lib/validation/sosmed";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
+import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/cloudinary";
 
 export async function PATCH(
   req: NextRequest,
@@ -33,48 +27,34 @@ export async function PATCH(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        {
-          errors: validationResult.error.errors.map((err) => err.message),
-        },
+        { errors: validationResult.error.errors.map((err) => err.message) },
         { status: 400 }
       );
     }
 
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, string | undefined> = {}; // ✅ Perbaikan tipe
 
-    if (platform !== null && platform !== undefined)
-      updateData.platform = platform;
-    if (url !== null && url !== undefined) updateData.url = url;
+    if (platform) updateData.platform = platform;
+    if (url) updateData.url = url;
 
-    if (photoFile && photoFile instanceof File) {
-      const arrayBuffer = await photoFile.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+    // Jika ada file baru, hapus file lama dan upload yang baru
+    if (photoFile) {
+      const existingData = await prisma.socialMedia.findUnique({
+        where: { id },
+        select: { photo: true },
+      });
 
-      try {
-        const uploadResponse = (await new Promise<unknown>(
-          (resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-              {
-                resource_type: "image",
-                folder: "social-media-photos",
-                access_mode: "public",
-              },
-              (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-              }
-            );
-            uploadStream.end(buffer);
-          }
-        )) as { secure_url: string };
+      if (existingData?.photo) {
+        await deleteFromCloudinary(existingData.photo); // ✅ Hanya satu parameter
+      }
 
-        updateData.photo = uploadResponse.secure_url;
-      } catch (error) {
-        console.error("Error uploading photo to Cloudinary:", error);
-        return NextResponse.json(
-          { errors: ["Gagal mengupload foto"] },
-          { status: 500 }
-        );
+      const uploadedUrl = await uploadToCloudinary(
+        photoFile,
+        "social-media-photos"
+      );
+
+      if (typeof uploadedUrl === "string") {
+        updateData.photo = uploadedUrl; // ✅ Hanya masukkan jika tipe string
       }
     }
 
@@ -156,13 +136,7 @@ export async function DELETE(
     }
 
     if (existingData.photo) {
-      const urlParts = existingData.photo.split("/");
-      const filenameWithExtension = urlParts[urlParts.length - 1];
-      const publicId = filenameWithExtension.split(".")[0];
-
-      if (publicId) {
-        await cloudinary.uploader.destroy(`social-media-photos/${publicId}`);
-      }
+      await deleteFromCloudinary(existingData.photo);
     }
 
     const deletedSocialMedia = await prisma.socialMedia.delete({
