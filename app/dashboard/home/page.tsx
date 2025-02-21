@@ -16,6 +16,7 @@ interface PersonalInfo {
   id: string;
   motto: string;
   cvLink: string;
+  cvFilename: string;
 }
 
 interface SocialMediaItem {
@@ -179,7 +180,12 @@ const HomePage = () => {
                 <h3 className="text-lg font-medium">CV</h3>
                 {personalInfo?.cvLink ? (
                   <Button
-                    onClick={() => window.open(personalInfo.cvLink, "_blank")}
+                    onClick={() => {
+                      const a = document.createElement("a");
+                      a.href = personalInfo.cvLink;
+                      a.download = personalInfo.cvFilename; // Menyertakan nama asli file
+                      a.click(); // Trigger download
+                    }}
                     variant="outline"
                     className="w-full mt-2 bg-blue-500 text-white hover:bg-blue-600"
                   >

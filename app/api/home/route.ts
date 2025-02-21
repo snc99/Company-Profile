@@ -11,6 +11,7 @@ const rateLimitCache = new LRUCache<string, number>({
 });
 
 // **2. Fungsi utama untuk menangani request POST**
+
 export async function POST(request: Request) {
   // **3. Rate Limiting (Cek apakah user spam request)**
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -52,18 +53,19 @@ export async function POST(request: Request) {
 
     // **7. Upload file ke Cloudinary**
     const uploadedUrl = await uploadToCloudinary(cvFile, "cv_files");
+    const originalName = cvFile.name;  // Nama asli file
 
     // **8. Simpan ke database**
     if (existingData) {
       // Data sudah ada, lakukan update
       await prisma.home.update({
         where: { id: existingData.id }, // Gunakan ID yang valid untuk update
-        data: { motto, cvLink: uploadedUrl },
+        data: { motto, cvLink: uploadedUrl, cvFilename: originalName },
       });
     } else {
       // Data belum ada, buat data baru
       await prisma.home.create({
-        data: { motto, cvLink: uploadedUrl },
+        data: { motto, cvLink: uploadedUrl, cvFilename: originalName },
       });
     }
 
@@ -84,6 +86,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
 
 export async function GET() {
   try {

@@ -6,12 +6,39 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// export async function uploadToCloudinary(
+//   file: File,
+//   folder?: string
+// ): Promise<string> {
+//   try {
+//     const arrayBuffer = await file.arrayBuffer();
+//     const buffer = Buffer.from(arrayBuffer);
+
+//     return new Promise<string>((resolve, reject) => {
+//       const uploadStream = cloudinary.uploader.upload_stream(
+//         { resource_type: "auto", folder: folder || undefined },
+//         (error, result) => {
+//           if (error) {
+//             reject(new Error(`Upload gagal: ${error.message}`));
+//           } else {
+//             resolve(result?.secure_url || "");
+//           }
+//         }
+//       );
+//       uploadStream.end(buffer);
+//     });
+//   } catch (error) {
+//     throw new Error(`Terjadi kesalahan saat mengupload file: ${error}`);
+//   }
+// }
+
 /**
  * Upload file ke Cloudinary
  * @param {File} file - File yang akan diupload
  * @param {string} folder - Nama folder di Cloudinary (opsional)
  * @returns {Promise<string>} URL file yang sudah diupload
  */
+
 export async function uploadToCloudinary(
   file: File,
   folder?: string
@@ -22,7 +49,11 @@ export async function uploadToCloudinary(
 
     return new Promise<string>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto", folder: folder || undefined },
+        {
+          resource_type: "auto",
+          folder: folder || undefined,
+          public_id: file.name.split(".")[0], // Menggunakan nama asli file (tanpa ekstensi)
+        },
         (error, result) => {
           if (error) {
             reject(new Error(`Upload gagal: ${error.message}`));

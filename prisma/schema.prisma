@@ -23,12 +23,14 @@ model Admin {
 }
 
 model Home {
-  id        String   @id @default(uuid()) @db.Uuid
-  motto     String
-  cvLink    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid()) @db.Uuid
+  motto       String
+  cvLink      String?  
+  cvFilename  String?  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
+
 
 
 model About {
