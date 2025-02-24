@@ -120,20 +120,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
-        title: "Work Experiance",
+        title: "Work Experience",
         url: "#",
         icon: Briefcase,
-        isActive: pathname.startsWith("/dashboard/work-experiance"),
+        isActive: pathname.startsWith("/dashboard/work-experience"),
         items: [
           {
             title: "List Work Experiance",
-            url: "/dashboard/work-experiance",
-            isActive: pathname === "/dashboard/work-experiance",
+            url: "/dashboard/work-experience",
+            isActive: pathname === "/dashboard/work-experience",
           },
           {
-            title: "Create Work Experiance",
-            url: "/dashboard/work-experiance/create",
-            isActive: pathname === "/dashboard/work-experiance/create",
+            title: "Create Work Experience",
+            url: "/dashboard/work-experience/create",
+            isActive: pathname === "/dashboard/work-experience/create",
           },
         ],
       },
