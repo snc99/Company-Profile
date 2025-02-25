@@ -23,7 +23,7 @@ export async function GET(
       include: {
         techStack: {
           include: {
-            skill: true, 
+            skill: true,
           },
         },
       },
@@ -88,12 +88,14 @@ export async function DELETE(
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const formData = await req.formData();
 
-    // Ambil data dari formData
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const link = formData.get("link") as string;
@@ -101,7 +103,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const projectImage = formData.get("projectImage") as File | null;
     const existingImage = formData.get("existingImage") as string | null;
 
-    // Validasi input menggunakan Zod
     const validationResult = CreateProjectSchema.safeParse({
       title,
       description,
@@ -117,25 +118,24 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       );
     }
 
-    // Cari proyek berdasarkan ID
     const project = await prisma.project.findUnique({ where: { id } });
     if (!project) {
-      return NextResponse.json({ error: "Proyek tidak ditemukan" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Proyek tidak ditemukan" },
+        { status: 404 }
+      );
     }
 
     let uploadedImageUrl = existingImage;
 
-    // Jika ada gambar baru, upload ke Cloudinary
     if (projectImage) {
       uploadedImageUrl = await uploadToCloudinary(projectImage, "projects");
 
-      // Hapus gambar lama jika ada
       if (project.projectImage) {
         await deleteFromCloudinary(project.projectImage);
       }
     }
 
-    // Update proyek di database
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {
@@ -144,7 +144,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         link,
         projectImage: uploadedImageUrl,
         techStack: {
-          deleteMany: {}, // Hapus semua skill lama
+          deleteMany: {},
           create: skills.map((skillId) => ({
             skill: { connect: { id: skillId } },
           })),
@@ -155,7 +155,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json(updatedProject, { status: 200 });
   } catch (error) {
     console.error("Error updating project:", error);
-    return NextResponse.json({ error: "Gagal memperbarui proyek" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Gagal memperbarui proyek" },
+      { status: 500 }
+    );
   }
 }
-
