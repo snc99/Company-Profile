@@ -7,6 +7,7 @@ import WorkHistory from "../components/landing/WorkHistory";
 import Contact from "../components/landing/Contact";
 import Footer from "../components/landing/Footer";
 import Project from "@/components/landing/Project";
+import FloatingToggle from "@/components/landing/FloatingToggle";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <Project />
       <Contact />
       <Footer />
+      <FloatingToggle />
     </>
   );
 }

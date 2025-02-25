@@ -215,9 +215,20 @@ const CreateProjectForm = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            className={`px-4 py-2 rounded-md text-white ${
+              isSubmitting
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             {isSubmitting ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => router.push("/dashboard/project")}
+            className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+          >
+            Back
           </Button>
         </div>
       </form>

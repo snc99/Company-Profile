@@ -10,6 +10,7 @@ import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 import { CreateProjectSchema } from "@/lib/validation/project";
 import MultiSelectDropdown from "../dropdown/MultiSelectDropdown";
 import Loading from "./Loading";
+import ErrorServer from "../card/errorServer";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -139,7 +140,10 @@ const EditProjectForm = () => {
 
       if (!response.ok) throw new Error("Gagal memperbarui data");
 
-      ToastNotification("success", "Proyek berhasil diperbarui");
+      ToastNotification(
+        "success",
+        `${formData.title} has been successfully updated`
+      );
       router.push("/dashboard/project");
     } catch (error) {
       console.error(error);
@@ -150,11 +154,11 @@ const EditProjectForm = () => {
   };
 
   if (projectError || skillsError) {
-    return <p className="text-red-500">Gagal memuat data.</p>;
+    return <ErrorServer />;
   }
 
   if (!projectData) {
-    return <Loading/> 
+    return <Loading />;
   }
 
   return (
@@ -217,8 +221,8 @@ const EditProjectForm = () => {
               Tech Stack
             </Label>
             <MultiSelectDropdown
-              options={skills} // Semua skill yang tersedia
-              selectedOptions={formData.selectedSkills} // Skill yang sudah dipilih sebelumnya
+              options={skills}
+              selectedOptions={formData.selectedSkills}
               onChange={(selected) =>
                 setFormData((prev) => ({ ...prev, selectedSkills: selected }))
               }
@@ -253,9 +257,20 @@ const EditProjectForm = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            className={`px-4 py-2 rounded-md text-white ${
+              isSubmitting
+                ? "bg-blue-600 opacity-50 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             {isSubmitting ? "Updating..." : "Save Changes"}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => router.push("/dashboard/project")}
+            className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+          >
+            Back
           </Button>
         </div>
       </form>

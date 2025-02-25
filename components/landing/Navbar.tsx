@@ -1,33 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu } from "@headlessui/react";
 import Link from "next/link";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState(""); // State untuk section aktif
+  const [activeSection, setActiveSection] = useState("");
 
-  // Scroll effect for transparency
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Scroll event untuk active section
   useEffect(() => {
     const sections = [
       "hero",
       "about",
       "skills",
+      "work-history",
       "project",
       "contact",
-      "work-history",
     ];
     const handleScroll = () => {
       sections.forEach((section) => {
@@ -46,31 +33,21 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav
-      className={`fixed w-full z-50 transition-all ${
-        isScrolled ? "bg-white-100 bg-opacity" : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Left - Brand Name */}
-        <div className="text-lg font-bold text-blue-700">
-          <Link href="/">Muhamad Irvan Sandy</Link>
-        </div>
-
-        {/* Center - Navigation Links */}
-        <div className="hidden md:flex space-x-6">
+    <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-transparent">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-center h-16">
+        <div className="hidden md:flex space-x-8">
           {["About", "Skills", "Work History", "Project", "Contact"].map(
             (item) => {
               const id = item.toLowerCase().replace(" ", "-");
               return (
                 <Link
-                  key={item}
+                  key={id}
                   href={`#${id}`}
-                  className={`transition ${
+                  className={`transition text-lg ${
                     activeSection === id
-                      ? "text-blue-700 font-semibold"
-                      : "text-gray-700"
-                  } hover:text-blue-700`}
+                      ? "text-gray-400 font-semibold"
+                      : "text-blue-500"
+                  } hover:text-gray-400`}
                 >
                   {item}
                 </Link>
@@ -79,66 +56,31 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Right - Theme & Login */}
-        <div className="flex items-center space-x-4">
-          {/* Theme Dropdown */}
-          <Menu as="div" className="relative">
-            <Menu.Button className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300 transition">
-              Theme
-            </Menu.Button>
-            <Menu.Items className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg focus:outline-none">
-              {["Light", "Dark", "System"].map((theme) => (
-                <Menu.Item key={theme}>
-                  {({ active }: { active: boolean }) => (
-                    <button
-                      className={`${
-                        active ? "bg-gray-100" : ""
-                      } w-full text-left px-4 py-2 text-gray-700`}
-                    >
-                      {theme} Theme
-                    </button>
-                  )}
-                </Menu.Item>
-              ))}
-            </Menu.Items>
-          </Menu>
-
-          {/* Login Button */}
-          <Link
-            href="/auth/login"
-            className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition"
-          >
-            Login
-          </Link>
-        </div>
-
-        {/* Hamburger Menu */}
-        <div className="md:hidden">
+        <div className="md:hidden absolute right-6">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-700 focus:outline-none"
+            className="text-gray-200 focus:outline-none text-2xl"
           >
             {isOpen ? "✖" : "☰"}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white shadow-lg">
-          {["About", "Skills", "Work History", "project", "Contact"].map(
+        <div className="md:hidden backdrop-blur-lg bg-transparent border border-gray-700 rounded-lg">
+          {["About", "Skills", "Work History", "Project", "Contact"].map(
             (item) => {
               const id = item.toLowerCase().replace(" ", "-");
               return (
                 <Link
-                  key={item}
+                  key={id}
                   href={`#${id}`}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-4 py-2 ${
+                  className={`block px-4 py-3 text-lg ${
                     activeSection === id
-                      ? "text-blue-700 font-semibold"
-                      : "text-gray-700"
-                  } hover:bg-gray-100 transition`}
+                      ? "text-blue-500 font-semibold"
+                      : "text-gray-200"
+                  } hover:text-blue-500`}
                 >
                   {item}
                 </Link>
