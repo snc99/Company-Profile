@@ -13,7 +13,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
-    // Cek apakah data skill ada
     const skill = await prisma.skill.findUnique({
       where: { id },
       select: { photo: true },
@@ -23,10 +22,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Skill not found" }, { status: 404 });
     }
 
-    // Hapus data dari database terlebih dahulu
     await prisma.skill.delete({ where: { id } });
 
-    // Jika ada foto, hapus dari Cloudinary
     if (skill.photo && skill.photo.startsWith("http")) {
       try {
         await deleteFromCloudinary(skill.photo);

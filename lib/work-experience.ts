@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function fetchWorkExperiences() {
   const response = await fetch("/api/work-experience");
-  if (!response.ok) throw new Error("Failed to fetch work experiences");
+  if (!response.ok) throw new Error("Failed to fetch work experien");
   return response.json();
 }
 

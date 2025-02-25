@@ -74,7 +74,6 @@ export async function PUT(
       );
     }
 
-    // Update data di database
     const updatedAbout = await prisma.about.update({
       where: { id },
       data: { description: about },

@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload foto ke Cloudinary
     let uploadedUrl;
     try {
       uploadedUrl = await uploadToCloudinary(photoFile, "skills");
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Simpan data ke database
     const newSkill = await prisma.skill.create({
       data: {
         name,

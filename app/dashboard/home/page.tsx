@@ -11,6 +11,7 @@ import {
   DeleteConfirmation,
   ToastNotification,
 } from "@/components/Toast-Sweetalert2/Toast";
+import ErrorServer from "@/components/card/errorServer";
 
 interface PersonalInfo {
   id: string;
@@ -31,14 +32,6 @@ const HomePage = () => {
   const [socialMediaData, setSocialMediaData] = useState<SocialMediaItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    setTimeout(() => {
-      location.reload();
-    }, 500);
-  };
 
   useEffect(() => {
     fetchPersonalInfo();
@@ -141,23 +134,7 @@ const HomePage = () => {
   if (loading) return <Loading />;
 
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Card className="border p-6 max-w-md text-center">
-          <CardHeader>
-            <h2 className="text-xl font-semibold text-red-600">
-              Terjadi Kesalahan
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">{error}</p>
-            <Button onClick={handleRetry} variant="outline" className="mt-4">
-              Coba Lagi
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ErrorServer />;
   }
 
   return (

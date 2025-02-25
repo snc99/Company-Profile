@@ -5,8 +5,6 @@ import { z } from "zod";
 
 export async function POST(req: Request) {
   try {
-    // console.log("📥 Menerima request POST ke /api/work-experience");
-
     const formData = await req.formData();
     const body = {
       companyName: formData.get("companyName") as string,

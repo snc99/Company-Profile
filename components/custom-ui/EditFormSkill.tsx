@@ -12,7 +12,7 @@ import { ToastNotification } from "../Toast-Sweetalert2/Toast";
 
 const EditFormSkill = () => {
   const router = useRouter();
-  const { id } = useParams(); // Ambil ID skill dari URL
+  const { id } = useParams(); 
   const [skill, setSkill] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);

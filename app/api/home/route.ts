@@ -10,8 +10,6 @@ const rateLimitCache = new LRUCache<string, number>({
   ttl: 60000,
 });
 
-// **2. Fungsi utama untuk menangani request POST**
-
 export async function POST(request: Request) {
   // **3. Rate Limiting (Cek apakah user spam request)**
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -59,11 +57,10 @@ export async function POST(request: Request) {
     if (existingData) {
       // Data sudah ada, lakukan update
       await prisma.home.update({
-        where: { id: existingData.id }, // Gunakan ID yang valid untuk update
+        where: { id: existingData.id }, 
         data: { motto, cvLink: uploadedUrl, cvFilename: originalName },
       });
     } else {
-      // Data belum ada, buat data baru
       await prisma.home.create({
         data: { motto, cvLink: uploadedUrl, cvFilename: originalName },
       });

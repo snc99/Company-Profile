@@ -46,7 +46,7 @@ export async function PUT(
         existingData.cvLink ?? "",
         cvFile,
         "cv_files"
-      ); // ✅ Perbaikan di sini
+      ); 
     }
 
     const updatedHome = await prisma.home.update({
@@ -69,16 +69,15 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ params dibuat sebagai Promise
+  context: { params: Promise<{ id: string }> } 
 ) {
   try {
-    const { id } = await context.params; // ✅ Tunggu Promise params selesai
+    const { id } = await context.params;
 
     if (!id) {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
-    // Cari data sebelum dihapus
     const existingData = await prisma.home.findUnique({
       where: { id },
       select: { cvLink: true },
@@ -91,12 +90,10 @@ export async function DELETE(
       );
     }
 
-    // Jika ada file di Cloudinary, hapus terlebih dahulu
     if (existingData.cvLink) {
       await deleteFromCloudinary(existingData.cvLink);
     }
 
-    // Hapus data dari database
     await prisma.home.delete({
       where: { id },
     });

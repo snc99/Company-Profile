@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import SkillTable from "@/components/custom-ui/Table-Skill";
-// import Loading from "@/components/custom-ui/Loading";
+import ErrorServer from "@/components/card/errorServer";
 
 interface Skill {
   id: string;
@@ -39,9 +39,7 @@ const SkillPage = () => {
         <h2 className="text-2xl font-semibold text-gray-800">Skill</h2>
       </div>
       {error ? (
-        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-          <p>{error}</p>
-        </div>
+        <ErrorServer />
       ) : (
         skills && <SkillTable skills={skills} />
       )}

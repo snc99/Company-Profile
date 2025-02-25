@@ -8,6 +8,7 @@ import {
   DeleteConfirmation,
   ToastNotification,
 } from "@/components/Toast-Sweetalert2/Toast";
+import ErrorServer from "@/components/card/errorServer";
 
 export default function AboutPage() {
   const [aboutData, setAboutData] = useState<{
@@ -86,7 +87,7 @@ export default function AboutPage() {
   }
 
   if (error) {
-    return <p className="text-red-500 text-center">{error}</p>;
+    return <ErrorServer />;
   }
 
   return (

@@ -8,6 +8,7 @@ import {
 } from "@/lib/work-experience";
 import WorkExperienceCard from "./WorkExperianceCard";
 import Loading from "./Loading";
+import ErrorServer from "../card/errorServer";
 
 interface WorkExperience {
   id: string;
@@ -25,7 +26,7 @@ const fetcher = async () => {
     return data.slice(0, 4);
   } catch (error) {
     console.error("Error fetching work experiences:", error);
-    return [];
+    throw new Error("Failed to fetch work experiences"); 
   }
 };
 
@@ -39,11 +40,10 @@ export default function WorkExperienceList() {
 
   const handleDelete = async (id: string) => {
     try {
-
       const responseData = await deleteWorkExperience(id);
 
       if (responseData && responseData.message) {
-        mutate(); 
+        mutate();
       } else {
         alert("Failed to delete work experience, data not found.");
       }
@@ -58,23 +58,25 @@ export default function WorkExperienceList() {
     }
   };
 
-  const handleUpdate = async (id: string, updatedData: Partial<WorkExperience>) => {
+  const handleUpdate = async (
+    id: string,
+    updatedData: Partial<WorkExperience>
+  ) => {
     try {
       console.log("Updating work experience with id:", id);
-      
+
       await updateWorkExperience(id, updatedData);
-  
+
       console.log("Work experience updated successfully!");
-      
-      mutate(); // Refresh data setelah update
+
+      mutate();
     } catch (error) {
       console.error("Error updating work experience:", error);
       alert("Failed to update work experience!");
     }
   };
 
-  if (error)
-    return <p className="text-center text-red-500">Error fetching data</p>;
+  if (error) return <ErrorServer />;
   if (isLoading) return <Loading />;
 
   return (

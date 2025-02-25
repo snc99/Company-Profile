@@ -10,10 +10,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    console.log("DELETE Request received for id:", id);
-
     if (!id || id.trim() === "") {
-      console.log("Invalid ID received, returning 400");
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
@@ -22,7 +19,6 @@ export async function DELETE(
     });
 
     if (!workExperienceExists) {
-      console.log("Work experience not found, returning 404");
       return NextResponse.json(
         { error: "Work experience not found" },
         { status: 404 }
@@ -33,7 +29,6 @@ export async function DELETE(
       where: { id },
     });
 
-    console.log("Work experience successfully deleted with id:", id);
     return NextResponse.json(
       {
         message: "Work experience deleted successfully",
@@ -57,8 +52,6 @@ export async function PUT(
   try {
     const resolvedParams = await context.params;
     const { id } = resolvedParams;
-
-    // console.log("📥 Menerima request UPDATE ke /api/work-experience/" + id);
 
     if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
@@ -124,8 +117,6 @@ export async function GET(
     const resolvedParams = await context.params;
     const { id } = resolvedParams;
 
-    // console.log(`📥 Menerima request GET ke /api/work-experience/${id}`);
-
     if (!id) {
       return NextResponse.json(
         { success: false, error: "ID is required" },
@@ -143,8 +134,6 @@ export async function GET(
         { status: 404 }
       );
     }
-
-    // console.log("✅ Data ditemukan:", experience);
 
     return NextResponse.json(
       {

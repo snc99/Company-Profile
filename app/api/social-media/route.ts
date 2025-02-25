@@ -23,10 +23,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload ke Cloudinary
     const uploadedUrl = await uploadToCloudinary(photoFile as File, "social-media-photos");
 
-    // Simpan data ke database
     const newSocialMedia = await prisma.socialMedia.create({
       data: {
         platform: platform as string,

@@ -32,12 +32,11 @@ export async function PATCH(
       );
     }
 
-    const updateData: Record<string, string | undefined> = {}; // ✅ Perbaikan tipe
+    const updateData: Record<string, string | undefined> = {}; 
 
     if (platform) updateData.platform = platform;
     if (url) updateData.url = url;
 
-    // Jika ada file baru, hapus file lama dan upload yang baru
     if (photoFile) {
       const existingData = await prisma.socialMedia.findUnique({
         where: { id },
@@ -45,7 +44,7 @@ export async function PATCH(
       });
 
       if (existingData?.photo) {
-        await deleteFromCloudinary(existingData.photo); // ✅ Hanya satu parameter
+        await deleteFromCloudinary(existingData.photo); 
       }
 
       const uploadedUrl = await uploadToCloudinary(
@@ -54,7 +53,7 @@ export async function PATCH(
       );
 
       if (typeof uploadedUrl === "string") {
-        updateData.photo = uploadedUrl; // ✅ Hanya masukkan jika tipe string
+        updateData.photo = uploadedUrl;
       }
     }
 

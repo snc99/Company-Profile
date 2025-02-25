@@ -62,6 +62,7 @@ const EditFormWorkExperience: React.FC<WorkExperienceFormProps> = ({
     e.preventDefault();
 
     try {
+      // Validasi data
       WorkExperienceSchema.parse({
         companyName: form.companyName || "",
         position: form.position || "",
@@ -231,7 +232,7 @@ const EditFormWorkExperience: React.FC<WorkExperienceFormProps> = ({
                 : "hover:bg-blue-700"
             }`}
           >
-            {isSubmitting ? "Updating..." : "Save Changes"}
+            {isSubmitting || loading ? "Saving..." : isEdit ? "Update" : "Save"}
           </Button>
           <Button
             onClick={(e) => {

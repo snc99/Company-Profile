@@ -34,7 +34,7 @@ const CreateAboutForm = () => {
       const response = await fetch("/api/about", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: data.description }), // ✅ Sesuai dengan skema Zod
+        body: JSON.stringify({ description: data.description }), 
       });
 
       if (!response.ok) {

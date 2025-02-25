@@ -47,14 +47,6 @@ model About {
   updatedAt   DateTime @updatedAt
 }
 
-model Skill {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  photo     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model WorkExperience {
   id          String   @id @default(uuid())
   companyName String
@@ -67,13 +59,36 @@ model WorkExperience {
   updatedAt   DateTime @updatedAt
 }
 
+model Skill {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  photo     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects ProjectSkill[]
+}
 
 model Project {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String
-  description String?
-  link        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid()) @db.Uuid
+  title        String
+  link         String?  
+  description  String?  
+  projectImage String?  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  techStack ProjectSkill[]
 }
+
+model ProjectSkill {
+  projectId String @db.Uuid
+  skillId   String @db.Uuid
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, skillId])
+}
+
 

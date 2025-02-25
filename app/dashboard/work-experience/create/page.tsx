@@ -4,7 +4,6 @@ import WorkExperienceForm from "@/components/custom-ui/CreateWorkExperienceForm"
 import { ToastNotification } from "@/components/Toast-Sweetalert2/Toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-// import { mutate } from "swr";
 
 const CreateWorkExperiencePage = () => {
   const [loading, setLoading] = useState(false);
@@ -22,8 +21,6 @@ const CreateWorkExperiencePage = () => {
       const data = await res.json();
 
       if (res.ok) {
-        // mutate("/api/work-experience");
-
         ToastNotification("success", "Work experience berhasil ditambahkan!");
         router.push("/dashboard/work-experience");
       } else {
