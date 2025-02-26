@@ -1,10 +1,7 @@
-"use client";
-
-// import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
+import SessionProviderWrapper from "@/components/landing/SessionProviderWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,21 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "Muhamad Irvan Sandy",
-//   description: "Profil Company",
-// };
+export const metadata = {
+  title: "Muhamad Irvan Sandy",
+  description: "Profil Company",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </html>
-    </SessionProvider>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SessionProviderWrapper>{children}</SessionProviderWrapper>
+      </body>
+    </html>
   );
 }
