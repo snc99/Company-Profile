@@ -36,6 +36,7 @@
     "form-data": "^4.0.1",
     "lru-cache": "^11.0.2",
     "lucide-react": "^0.474.0",
+    "motion": "^12.4.7",
     "next": "15.1.6",
     "next-auth": "^4.24.11",
     "next-cloudinary": "^6.16.0",
