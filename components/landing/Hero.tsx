@@ -14,6 +14,12 @@ const Hero = () => {
     cvLink: null,
   });
 
+  const [loading, setLoading] = useState(true);
+  const [displayText, setDisplayText] = useState("M");
+  const fullText = "uhamad Irvan Sandy";
+  const [index, setIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,10 +29,35 @@ const Hero = () => {
         setData({ motto: result.motto, cvLink: result.cvLink });
       } catch (error) {
         console.error("Error fetching home data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const typingSpeed = isDeleting ? 100 : 150;
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (index < fullText.length) {
+          setDisplayText((prev) => prev + fullText[index]);
+          setIndex(index + 1);
+        } else {
+          setIsDeleting(true);
+        }
+      } else {
+        if (index > 0) {
+          setDisplayText((prev) => prev.slice(0, -1));
+          setIndex(index - 1);
+        } else {
+          setIsDeleting(false);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [index, isDeleting]);
 
   return (
     <section
@@ -40,23 +71,32 @@ const Hero = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <h1 className="text-4xl sm:text-5xl font-bold text-blue-700 mb-4">
-          Muhamad Irvan Sandy
+          {displayText}
+          <span className="animate-blink">|</span>
         </h1>
+
         <p className="text-lg text-gray-600 max-w-xl mx-auto mb-6">
-          {data.motto || "Motto tidak tersedia"}
+          {loading ? "Loading..." : data.motto || "Motto tidak tersedia"}
         </p>
 
-        {/* Tombol Download CV dan Contact */}
         <div className="flex space-x-3 items-center justify-center mb-6">
-          {data.cvLink ? (
+          {loading ? (
+            <button
+              disabled
+              className="flex items-center px-4 py-2 bg-gray-400 text-white rounded-md shadow-md text-sm cursor-not-allowed"
+            >
+              <Download size={16} className="mr-2" />
+              Loading...
+            </button>
+          ) : data.cvLink ? (
             <a
               href={data.cvLink}
               download
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-4 py-2 bg-blue-700 text-white rounded-md shadow-md text-sm hover:bg-blue-600 transition"
+              className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-md shadow-md text-sm transition"
             >
-              <Download size={16} className="mr-2" />
+              <Download size={16} className="mr-2 " />
               Download CV
             </a>
           ) : (
@@ -70,14 +110,19 @@ const Hero = () => {
           )}
           <a
             href="#contact"
-            className="flex items-center px-4 py-2 border border-blue-700 text-blue-700 rounded-md shadow-md text-sm hover:bg-blue-700 hover:text-white transition"
+            className="flex items-center px-4 py-2 border border-blue-700 text-blue-700 rounded-md shadow-md text-sm hover:bg-gradient-to-r from-blue-500 to-blue-800 hover:text-white transition"
           >
             <Mail size={16} className="mr-2" />
             Contact Me
           </a>
         </div>
       </motion.div>
-      <SocialMediaLinks />
+
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : (
+        <SocialMediaLinks />
+      )}
     </section>
   );
 };

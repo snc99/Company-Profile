@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 export default function About() {
   const [aboutContent, setAboutContent] = useState<string | null>(null);
+  const [displayedText, setDisplayedText] = useState(""); // Untuk efek ketik
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -11,14 +12,26 @@ export default function About() {
         const res = await fetch("/api/about", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch about data");
         const result = await res.json();
-        setAboutContent(result.description || "About tidak tersedia"); // Default if no description
+        setAboutContent(result.description || "About tidak tersedia");
       } catch (error) {
         console.error("Error fetching about data:", error);
-        setAboutContent("About tidak tersedia"); // Default on error
+        setAboutContent("About tidak tersedia");
       }
     };
     fetchAboutData();
   }, []);
+
+  // Efek Typewriter
+  useEffect(() => {
+    if (!aboutContent) return;
+    let index = 0;
+    const interval = setInterval(() => {
+      setDisplayedText(aboutContent.slice(0, index));
+      index++;
+      if (index > aboutContent.length) clearInterval(interval);
+    }, 20); // Kecepatan ketik
+    return () => clearInterval(interval);
+  }, [aboutContent]);
 
   return (
     <section
@@ -35,12 +48,12 @@ export default function About() {
           About Me
         </motion.h2>
         <motion.p
-          className="text-lg text-gray-600 mb-10"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="text-lg text-gray-600 mb-10 leading-relaxed"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {aboutContent}
+          {displayedText} {/* Efek ketik */}
         </motion.p>
       </div>
     </section>

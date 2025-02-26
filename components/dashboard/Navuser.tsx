@@ -54,12 +54,17 @@ export function NavUser({
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
+                forceMount={true}
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                 side={isMobile ? "bottom" : "right"}
                 align="end"
                 sideOffset={4}
+                aria-describedby={undefined}
               >
-                <DropdownMenuLabel className="p-0 font-normal">
+                <DropdownMenuLabel
+                  className="p-0 font-normal"
+                  aria-hidden="true"
+                >
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage src={user.avatar} alt={user.name} />

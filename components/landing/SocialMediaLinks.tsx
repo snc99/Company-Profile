@@ -11,17 +11,21 @@ interface SocialMedia {
 
 const SocialMediaLinks = () => {
   const [socialLinks, setSocialLinks] = useState<SocialMedia[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false); // Untuk menunda tampilan
 
   useEffect(() => {
     const fetchSocialMedia = async () => {
       try {
-        // Perbaikan URL endpoint untuk API sosial media
         const res = await fetch("/api/social-media", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch social media data");
         const result = await res.json();
         setSocialLinks(result);
+
+        // Tunda tampilan selama 500ms agar terasa lebih smooth
+        setTimeout(() => setIsLoaded(true), 80);
       } catch (error) {
         console.error("Error fetching social media:", error);
+        setSocialLinks([]); // Jika gagal, set array kosong agar tidak undefined
       }
     };
     fetchSocialMedia();
@@ -30,18 +34,24 @@ const SocialMediaLinks = () => {
   return (
     <motion.div
       className="flex space-x-4 justify-center"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
+      initial="hidden"
+      animate={isLoaded ? "visible" : "hidden"} // Tampilkan setelah delay
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.2 } }, // Stagger animasi tiap anak
+      }}
     >
       {socialLinks.length > 0 ? (
-        socialLinks.map((social) => (
-          <a
+        socialLinks.map((social, index) => (
+          <motion.a
             key={social.platform}
             href={social.url}
             target="_blank"
             rel="noopener noreferrer"
             className="w-10 h-10 rounded-full overflow-hidden border border-blue-700 shadow-lg hover:scale-110 transition-transform"
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: index * 0.2 }} // Efek muncul satu per satu
           >
             <Image
               src={social.photo}
@@ -50,11 +60,11 @@ const SocialMediaLinks = () => {
               width={80}
               height={80}
             />
-          </a>
+          </motion.a>
         ))
-      ) : (
+      ) : isLoaded ? (
         <p className="text-gray-500">Social media tidak tersedia</p>
-      )}
+      ) : null}
     </motion.div>
   );
 };
