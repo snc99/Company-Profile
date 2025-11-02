@@ -7,6 +7,7 @@ Langkah-langkah untuk Push ke GitHub
 3. git commit -m "Pesan commit yang perubahan"
 4. git push origin main
 
+
 # npx migrate dev (jalankan migrate)
 
 fitur
